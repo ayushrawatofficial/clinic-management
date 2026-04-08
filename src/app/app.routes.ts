@@ -1,0 +1,47 @@
+import { Routes } from '@angular/router';
+import { LoginComponent } from './modules/auth/pages/login/login';
+import { authGuard } from './core/guards/auth-guard';
+import { roleGuard } from './core/guards/role-guard';
+import { MainLayout } from './shared/layout/main-layout/main-layout';
+
+
+export const routes: Routes = [
+  { path: '', component: LoginComponent },
+
+  {
+    path: '',
+    component: MainLayout,
+    canActivate: [authGuard],
+    children: [
+      {
+        path: 'home',
+        loadComponent: () =>
+          import('./modules/dashboard/pages/home/home')
+            .then(m => m.HomeComponent)
+      },
+
+      {
+        path: 'services',
+        canActivate: [roleGuard(['admin'])], // 🔥 only admin
+        loadComponent: () =>
+          import('./modules/services/pages/services/services')
+            .then(m => m.ServicesComponent)
+      },
+
+      {
+        path: 'admin',
+        canActivate: [roleGuard(['admin'])],
+        loadComponent: () =>
+          import('./modules/admin/pages/user-management/user-management')
+            .then(m => m.UserManagementComponent)
+      },
+
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./modules/patients/pages/patient-list/patient-list')
+            .then(m => m.PatientList)
+      }
+    ]
+  }
+];

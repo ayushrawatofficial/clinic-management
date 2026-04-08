@@ -1,0 +1,25 @@
+<div class="sidebar" [class.collapsed]="collapsed">
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+
+    <div class="logo-section">
+      <span class="logo">🏥</span>
+      <span class="title" *ngIf="!collapsed">Clinic</span>
+    </div>
+
+    <button class="toggle-btn" (click)="toggle()">
+      ☰
+    </button>
+
+  </div>
+
+  <!-- MENU -->
+  <div class="menu">
+    <div class="item" *ngFor="let m of menu" (click)="navigate(m.route)">
+      <span class="icon">{{m.icon}}</span>
+      <span class="text" *ngIf="!collapsed">{{m.name}}</span>
+    </div>
+  </div>
+
+</div>

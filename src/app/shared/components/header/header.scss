@@ -1,0 +1,51 @@
+.header {
+  height: 60px;
+  background: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.left h3 {
+  margin: 0;
+  font-weight: 600;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* USER */
+.user-info {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* TIME */
+.datetime {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+  color: gray;
+}
+
+.time {
+  font-weight: 600;
+  color: black;
+}
+
+/* LOGOUT */
+.logout {
+  cursor: pointer;
+  font-size: 14px;
+  color: #ef4444;
+  font-weight: 500;
+}
+
+.logout:hover {
+  text-decoration: underline;
+}

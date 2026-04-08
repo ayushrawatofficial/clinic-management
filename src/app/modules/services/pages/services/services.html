@@ -1,0 +1,109 @@
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header-bar">
+    <div class="stats-card">
+      <div>Total Services</div>
+      <h2>{{ totalServices }}</h2>
+    </div>
+
+    <button class="add-btn" (click)="openDialog()">+ Add Service</button>
+  </div>
+
+  <!-- BULK BAR -->
+  <div class="bulk-bar" *ngIf="selectedServices.length > 0">
+
+    <div class="bulk-left">
+      <span>Apply Discount ({{ selectedServices.length }})</span>
+
+      <select [(ngModel)]="bulkType">
+        <option value="percent">%</option>
+        <option value="flat">₹</option>
+      </select>
+
+      <input type="text" [(ngModel)]="bulkValue" placeholder="Enter value" />
+
+      <input type="date"
+             [(ngModel)]="bulkExpiry"
+             [min]="today" />
+    </div>
+
+    <button class="apply-btn" (click)="applyBulkDiscount()">Apply</button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table">
+
+    <!-- HEADER -->
+    <div class="row header">
+      <div class="center">
+        <input type="checkbox"
+               [checked]="isAllSelected"
+               [indeterminate]="isIndeterminate"
+               (change)="toggleAll($event)">
+      </div>
+      <div>Name</div>
+      <div>Category</div>
+      <div>Price</div>
+      <div>Discount</div>
+      <div>Final</div>
+      <div>Expiry</div>
+      <div>Actions</div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="row filter">
+      <div></div>
+      <div><input [(ngModel)]="filters.name" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.category" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.price" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.discount" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.finalPrice" (input)="applyFilter()" /></div>
+      <div></div>
+      <div></div>
+    </div>
+
+    <!-- DATA -->
+    <ng-container *ngIf="filtered.length > 0; else noData">
+
+      <div class="row" *ngFor="let s of filtered; trackBy: trackById">
+
+        <div class="center">
+          <input type="checkbox"
+                 [(ngModel)]="s.selected"
+                 (change)="updateSelectionState()" />
+        </div>
+
+        <div>{{s.name}}</div>
+        <div>{{s.category}}</div>
+        <div>₹{{s.price}}</div>
+        <div>{{s.discountValue}}</div>
+        <div class="final">₹{{s.finalPrice}}</div>
+
+        <div>
+  {{ s.discountExpiry ? (s.discountExpiry | date:'shortDate') : 'No Expiry' }}
+</div>
+
+        <div class="actions">
+          <button class="edit" (click)="openDialog(s)">Edit</button>
+          <button class="delete" (click)="delete(s.id)">Delete</button>
+        </div>
+
+      </div>
+
+    </ng-container>
+
+    <ng-template #noData>
+      <div class="no-data">No services found</div>
+    </ng-template>
+
+  </div>
+<!-- DIALOG -->
+  <app-add-service-dialog
+    *ngIf="showDialog"
+    [data]="editData"
+    [loading]="dialogLoading"
+    (onSave)="handleSave($event)"
+    (onClose)="closeDialog()">
+  </app-add-service-dialog>
+</div>

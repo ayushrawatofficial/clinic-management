@@ -1,0 +1,76 @@
+<div class="overlay" (click)="close()"></div>
+
+<div class="dialog" (click)="$event.stopPropagation()">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h2>{{ data ? 'Edit Service' : 'Add Service' }}</h2>
+    <span class="close" (click)="close()">✕</span>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- ROW 1 -->
+    <div class="grid">
+      <div class="field">
+        <label>Service Name *</label>
+        <input [(ngModel)]="name" />
+        <div class="error" *ngIf="submitted && (!name || name.trim() === '')">
+  Name is required
+</div>
+      </div>
+
+      <div class="field">
+        <label>Category</label>
+        <input [(ngModel)]="category" />
+      </div>
+    </div>
+
+    <!-- DESCRIPTION -->
+    <div class="field full">
+      <label>Description</label>
+      <textarea [(ngModel)]="description"></textarea>
+    </div>
+
+    <!-- ROW 2 -->
+    <div class="grid three">
+      <div class="field">
+        <label>Price *</label>
+        <input type="number" [(ngModel)]="price" />
+        <div class="error" *ngIf="submitted && (!price || price <= 0)">
+          Price is required
+        </div>
+      </div>
+
+      <div class="field small">
+        <label>Type</label>
+        <select [(ngModel)]="discountType">
+          <option value="percent">%</option>
+          <option value="flat">₹</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Discount</label>
+        <input type="number" [(ngModel)]="discountValue" />
+      </div>
+    </div>
+
+    <!-- FINAL -->
+    <div class="final-box">
+      Final Price: ₹ {{ finalPrice }}
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <button class="cancel" (click)="close()">Cancel</button>
+
+    <button class="save" (click)="save()" [disabled]="loading">
+      {{ loading ? (data ? 'Updating...' : 'Saving...') : (data ? 'Update Service' : 'Save Service') }}
+    </button>
+  </div>
+
+</div>

@@ -1,0 +1,19 @@
+.toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 14px 20px;
+  border-radius: 12px;
+  color: white;
+  font-weight: 500;
+  animation: slide 0.3s ease;
+}
+
+.success { background: #16a34a; }
+.warning { background: #f59e0b; }
+.error { background: #ef4444; }
+
+@keyframes slide {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}

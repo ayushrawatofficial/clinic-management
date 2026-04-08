@@ -1,0 +1,70 @@
+<div class="page">
+
+  <!-- HEADER BAR -->
+  <div class="header-bar">
+
+    <!-- LEFT: COUNT -->
+    <div class="stats-wrapper">
+      <div class="stats-card">
+        <div>Total Users</div>
+        <h2>{{ totalUsers }}</h2>
+      </div>
+    </div>
+
+    <!-- RIGHT: BUTTON -->
+    <button class="add-btn" (click)="openDialog()">+ Add User</button>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="table">
+
+    <!-- HEADER -->
+    <div class="row header">
+      <div>Name</div>
+      <div>Email</div>
+      <div>Role</div>
+      <div>Actions</div>
+    </div>
+
+    <!-- FILTER -->
+    <div class="row filter">
+      <div><input [(ngModel)]="filters.name" (input)="applyFilter()" placeholder="Search" /></div>
+      <div><input [(ngModel)]="filters.email" (input)="applyFilter()" placeholder="Search" /></div>
+      <div><input [(ngModel)]="filters.role" (input)="applyFilter()" placeholder="Search" /></div>
+      <div></div>
+    </div>
+
+    <!-- DATA -->
+    <ng-container *ngIf="filtered.length > 0; else noData">
+
+      <div class="row" *ngFor="let u of filtered; trackBy: trackById">
+        <div>{{u.name}}</div>
+        <div>{{u.email}}</div>
+        <div>{{u.role}}</div>
+
+        <div class="actions">
+          <button class="edit" (click)="openDialog(u)">Edit</button>
+          <button class="delete" (click)="delete(u.id)">Delete</button>
+        </div>
+      </div>
+
+    </ng-container>
+
+    <!-- NO DATA -->
+    <ng-template #noData>
+      <div class="no-data">No users found</div>
+    </ng-template>
+
+  </div>
+
+  <!-- DIALOG -->
+  <app-add-user-dialog
+    *ngIf="showDialog"
+    [data]="editData"
+    [loading]="dialogLoading"
+    (onSave)="handleSave($event)"
+    (onClose)="closeDialog()">
+  </app-add-user-dialog>
+
+</div>

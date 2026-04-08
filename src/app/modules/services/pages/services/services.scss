@@ -1,0 +1,136 @@
+.page {
+  padding: 20px;
+}
+
+/* HEADER */
+.header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.stats-card {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.add-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* BULK BAR */
+.bulk-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  padding: 14px 18px;
+  border-radius: 12px;
+  margin-bottom: 14px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.bulk-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.bulk-left select,
+.bulk-left input {
+  height: 34px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.apply-btn {
+  background: #2563eb;
+  color: white;
+  padding: 8px 18px;
+  border-radius: 8px;
+  border: none;
+}
+
+/* TABLE */
+.table {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* PERFECT GRID */
+.row {
+  display: grid;
+  grid-template-columns: 60px 1.5fr 1.5fr 1fr 1fr 1fr 1.2fr 1.5fr;
+  align-items: center;
+}
+
+.row > div {
+  padding: 14px 16px;
+}
+
+/* HEADER */
+.header {
+  font-weight: 600;
+  background: #f8fafc;
+}
+
+/* FILTER */
+.filter input {
+  width: 100%;
+  border: none;
+  border-bottom: 2px solid #ddd;
+  background: transparent;
+  outline: none;
+}
+
+.filter input:focus {
+  border-bottom: 2px solid #2563eb;
+}
+
+/* CENTER */
+.center {
+  display: flex;
+  justify-content: center;
+}
+
+/* FINAL */
+.final {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+/* ACTIONS */
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.edit {
+  background: orange;
+  color: white;
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+.delete {
+  background: red;
+  color: white;
+  border-radius: 6px;
+  padding: 5px 10px;
+}
+
+/* NO DATA */
+.no-data {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 40px;
+}

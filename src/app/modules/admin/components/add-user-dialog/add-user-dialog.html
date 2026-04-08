@@ -1,0 +1,58 @@
+<div class="overlay" (click)="close()"></div>
+
+<div class="dialog" (click)="$event.stopPropagation()">
+
+  <!-- HEADER -->
+  <div class="header">
+    <h2>{{ data ? 'Edit User' : 'Add User' }}</h2>
+    <span class="close" (click)="close()">✕</span>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <div class="grid">
+
+      <!-- NAME -->
+      <div class="field">
+        <label>Name *</label>
+        <input [(ngModel)]="name" />
+
+        <div class="error" *ngIf="submitted && name.trim() === ''">
+          Name is required
+        </div>
+      </div>
+
+      <!-- EMAIL -->
+      <div class="field">
+        <label>Email *</label>
+        <input [(ngModel)]="email" />
+
+        <div class="error" *ngIf="submitted && !isEmailValid">
+          Valid email required
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ROLE -->
+    <div class="field full">
+      <label>Role</label>
+      <select [(ngModel)]="role">
+        <option value="admin">Admin</option>
+        <option value="receptionist">Receptionist</option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <button class="cancel" (click)="close()">Cancel</button>
+
+    <button class="save" (click)="save()" [disabled]="loading">
+      {{ loading ? (data ? 'Updating...' : 'Saving...') : (data ? 'Update User' : 'Save User') }}
+    </button>
+  </div>
+
+</div>

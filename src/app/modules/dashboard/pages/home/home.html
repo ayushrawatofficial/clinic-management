@@ -1,0 +1,12 @@
+<div class="dashboard">
+
+  <h2>Dashboard</h2>
+
+  <div class="grid">
+    <div class="card" *ngFor="let m of modules" (click)="navigate(m.route)">
+      <div class="icon">{{m.icon}}</div>
+      <div class="title">{{m.name}}</div>
+    </div>
+  </div>
+
+</div>

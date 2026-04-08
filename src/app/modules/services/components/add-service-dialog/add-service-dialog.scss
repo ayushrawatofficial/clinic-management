@@ -1,0 +1,113 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 1000;
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 25px 50px rgba(0,0,0,0.25);
+  z-index: 1001;
+  overflow: hidden;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  padding: 16px 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.close {
+  cursor: pointer;
+}
+
+/* BODY */
+.body {
+  padding: 20px;
+}
+
+/* GRID */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.grid.three {
+  grid-template-columns: 1fr 100px 1fr;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.field.full {
+  margin-bottom: 14px;
+}
+
+label {
+  font-size: 12px;
+  margin-bottom: 4px;
+  color: #555;
+}
+
+input, select, textarea {
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  font-size: 14px;
+}
+
+textarea {
+  resize: none; /* FIX */
+  height: 80px;
+}
+
+/* ERROR */
+.error {
+  color: #ef4444;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* FINAL */
+.final-box {
+  background: #f0fdf4;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #16a34a;
+}
+
+/* FOOTER */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 15px;
+  border-top: 1px solid #eee;
+}
+
+.save {
+  background: #2563eb;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+.cancel {
+  background: #e5e7eb;
+  padding: 8px 16px;
+  border-radius: 8px;
+}
