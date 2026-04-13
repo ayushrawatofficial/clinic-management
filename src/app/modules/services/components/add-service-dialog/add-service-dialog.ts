@@ -23,6 +23,8 @@ export class AddServiceDialogComponent implements OnInit {
   price: number | null = null;
   discountType: 'percent' | 'flat' = 'percent';
   discountValue = 0;
+  discountExpiry: any = null;
+  today = new Date().toISOString().split('T')[0];
 
   submitted = false;
 constructor(private cdr: ChangeDetectorRef) {}
@@ -35,6 +37,7 @@ constructor(private cdr: ChangeDetectorRef) {}
       this.price = this.data.price;
       this.discountType = this.data.discountType;
       this.discountValue = this.data.discountValue;
+       this.discountExpiry = this.data.discountExpiry || null;
     }
   }
 
@@ -62,7 +65,8 @@ constructor(private cdr: ChangeDetectorRef) {}
     discountType: this.discountType,
     discountValue: this.discountValue,
     finalPrice: this.finalPrice,
-    createdAt: new Date()
+    createdAt: new Date(),
+    discountExpiry: this.discountExpiry || null
   });
 }
 

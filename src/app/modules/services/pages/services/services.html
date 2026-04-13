@@ -44,6 +44,7 @@
       </div>
       <div>Name</div>
       <div>Category</div>
+      <div>Description</div>
       <div>Price</div>
       <div>Discount</div>
       <div>Final</div>
@@ -56,6 +57,7 @@
       <div></div>
       <div><input [(ngModel)]="filters.name" (input)="applyFilter()" /></div>
       <div><input [(ngModel)]="filters.category" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.description" (input)="applyFilter()" /></div>
       <div><input [(ngModel)]="filters.price" (input)="applyFilter()" /></div>
       <div><input [(ngModel)]="filters.discount" (input)="applyFilter()" /></div>
       <div><input [(ngModel)]="filters.finalPrice" (input)="applyFilter()" /></div>
@@ -76,8 +78,9 @@
 
         <div>{{s.name}}</div>
         <div>{{s.category}}</div>
+        <div class="ellipsis">{{s.description || '-'}}</div>
         <div>₹{{s.price}}</div>
-        <div>{{s.discountValue}}</div>
+        <div>{{ s.discountType === 'percent' ? (s.discountValue + '%') : ('₹' + s.discountValue) }}</div>
         <div class="final">₹{{s.finalPrice}}</div>
 
         <div>

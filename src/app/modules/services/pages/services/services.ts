@@ -30,7 +30,8 @@ export class ServicesComponent implements OnInit, OnDestroy {
     category: '',
     price: '',
     discount: '',
-    finalPrice: ''
+    finalPrice: '',
+    description:''
   };
 
   sub!: Subscription;
@@ -105,6 +106,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
       (!this.filters.name || s.name?.toLowerCase().includes(this.filters.name.toLowerCase())) &&
       (!this.filters.category || s.category?.toLowerCase().includes(this.filters.category.toLowerCase())) &&
       (!this.filters.price || String(s.price).includes(this.filters.price)) &&
+      (!this.filters.description || String(s.description).includes(this.filters.description)) &&
       (!this.filters.discount || String(s.discountValue).includes(this.filters.discount)) &&
       (!this.filters.finalPrice || String(s.finalPrice).includes(this.filters.finalPrice))
     );

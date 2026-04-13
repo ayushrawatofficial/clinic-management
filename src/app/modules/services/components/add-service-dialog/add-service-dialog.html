@@ -42,8 +42,16 @@
           Price is required
         </div>
       </div>
+    </div>
 
-      <div class="field small">
+    <!-- ROW 3 -->
+    <div class="grid three">
+      <div class="field">
+        <label>Discount</label>
+        <input type="number" [(ngModel)]="discountValue" />
+      </div>
+
+            <div class="field small">
         <label>Type</label>
         <select [(ngModel)]="discountType">
           <option value="percent">%</option>
@@ -52,9 +60,9 @@
       </div>
 
       <div class="field">
-        <label>Discount</label>
-        <input type="number" [(ngModel)]="discountValue" />
-      </div>
+    <label>Expiry Date</label>
+    <input type="date" [(ngModel)]="discountExpiry" [min]="today" />
+  </div>
     </div>
 
     <!-- FINAL -->
