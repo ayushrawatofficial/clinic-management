@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
+import { Auth } from '@angular/fire/auth';
 import { signInWithEmailAndPassword } from 'firebase/auth';
-import { FirebaseService } from './firebase';
 
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 
-  constructor(private firebase: FirebaseService) {}
+  constructor(private auth: Auth) {}
 
   async login(email: string, password: string) {
     const userCredential = await signInWithEmailAndPassword(
-      this.firebase.auth,
+      this.auth,
       email,
       password
     );

@@ -1,1 +1,59 @@
-<p>patient-list works!</p>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header-bar">
+
+    <div class="stats">
+      <div class="card">
+        <div>Total Patients</div>
+        <h2>{{ totalPatients }}</h2>
+      </div>
+
+      <div class="card">
+        <div>Today</div>
+        <h2>{{ patientsToday }}</h2>
+      </div>
+
+      <div class="card">
+        <div>This Month</div>
+        <h2>{{ patientsThisMonth }}</h2>
+      </div>
+    </div>
+
+    <button class="add-btn" (click)="openDialog()">+ Add Patient</button>
+
+  </div>
+
+  <!-- SEARCH -->
+  <div class="search-bar">
+    <input [(ngModel)]="search" (input)="applyFilter()" placeholder="Search..." />
+  </div>
+
+  <!-- TABLE -->
+  <div class="table">
+
+    <div class="row header">
+      <div>ID</div>
+      <div>Name</div>
+      <div>Mobile</div>
+      <div>Age</div>
+      <div>Gender</div>
+      <div>Last Visit</div>
+    </div>
+
+    <div class="row" *ngFor="let p of filtered" (click)="openPatient(p)">
+      <div>{{ p.patientCode }}</div>
+      <div>{{ p.name }}</div>
+      <div>{{ p.mobile }}</div>
+      <div>{{ p.age }}</div>
+      <div>{{ p.gender }}</div>
+      <div>
+        {{ p.lastVisit ? (p.lastVisit | date:'shortDate') : '—' }}
+      </div>
+    </div>
+
+  </div>
+
+  <app-add-patient *ngIf="showDialog" (onClose)="closeDialog()"></app-add-patient>
+
+</div>

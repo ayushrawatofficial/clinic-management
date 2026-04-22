@@ -1,9 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FirebaseService } from '../../../../core/services/firebase';
-import { UserService } from '../../../../core/services/user';
 
+import { Auth } from '@angular/fire/auth';
+import { UserService } from '../../../../core/services/user';
+import { ServiceService } from '../../../../core/services/service';
+
+import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -14,48 +17,63 @@ import { UserService } from '../../../../core/services/user';
 })
 export class HomeComponent implements OnInit {
 
-  modules: any[] = [];
+  // modules: any[] = [];
+  modules = [
+        { name: 'Patients', route: '/patients', icon: '🧑', count: 0 },
+
+        { name: 'Services', route: '/services', icon: '🧾', count: 0 },
+
+        { name: 'Products', route: '/products', icon: '💊', count: 0 },
+
+        // { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true, count: 0 },
+
+        // { name: 'Users', route: '/admin', icon: '👥', adminOnly: true, count: 0}
+      ];
 
   constructor(
     private router: Router,
-    private firebase: FirebaseService,
-    private userService: UserService
+    private auth: Auth,
+    private userService: UserService,
+    private serviceService: ServiceService
   ) {}
 
   async ngOnInit() {
-     this.modules = [
-      { name: 'Patients', route: '/dashboard', icon: '🧑' },
-      { name: 'Services', route: '/services', icon: '🧾' },
-      { name: 'Products', route: '/products', icon: '💊' },
-      { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true },
-      { name: 'Users', route: '/admin', icon: '👥', adminOnly: true }
-    ];
 
- 
-    const user = this.firebase.auth.currentUser;
+    const user = this.auth.currentUser;
 
     if (!user) return;
 
     const dbUser = await this.userService.getUserByEmail(user.email!);
 
-    this.setModules(dbUser?.role || '');
+    this.loadModules(dbUser?.role || '');
   }
 
-  setModules(role: string) {
+  loadModules(role: string) {
 
-    const allModules = [
-      { name: 'Patients', route: '/dashboard', icon: '🧑' },
-      { name: 'Services', route: '/services', icon: '🧾' },
-      { name: 'Products', route: '/products', icon: '💊' },
-      { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true },
-      { name: 'Users', route: '/admin', icon: '👥', adminOnly: true }
-    ];
+    combineLatest([
+      this.serviceService.getServices(),
+      this.userService.getUsers()
+    ]).subscribe(([services, users]) => {
 
-    this.modules = allModules;
-    // allModules.filter(m => {
-    //   if (m.adminOnly && role !== 'admin') return false;
-    //   return true;
-    // });
+      const allModules = [
+        { name: 'Patients', route: '/patients', icon: '🧑', count: 0 },
+
+        { name: 'Services', route: '/services', icon: '🧾', count: services.length },
+
+        { name: 'Products', route: '/products', icon: '💊', count: 0 },
+
+        { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true, count: 0 },
+
+        { name: 'Users', route: '/admin', icon: '👥', adminOnly: true, count: users.length }
+      ];
+
+      // 🔥 ROLE FILTER
+      this.modules = allModules.filter(m => {
+        if (m.adminOnly && role !== 'admin') return false;
+        return true;
+      });
+
+    });
   }
 
   navigate(route: string) {

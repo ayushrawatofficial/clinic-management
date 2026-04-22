@@ -35,7 +35,7 @@ export class LoginComponent {
         return;
       }
 
-      this.router.navigate(['/home']);
+      this.router.navigate(['/dashboard']);
       // 🔥 role-based navigation
       // if (user.role === 'admin') {
       //   this.router.navigate(['/admin']);

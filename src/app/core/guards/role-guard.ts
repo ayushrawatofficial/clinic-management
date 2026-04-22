@@ -1,15 +1,15 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { UserService } from '../services/user';
-import { FirebaseService } from '../services/firebase';
+import { Auth } from '@angular/fire/auth';
 
 export const roleGuard = (allowedRoles: string[]): CanActivateFn => {
   return async () => {
     const router = inject(Router);
     const userService = inject(UserService);
-    const firebase = inject(FirebaseService);
+    const auth = inject(Auth);
 
-    const user = firebase.auth.currentUser;
+    const user = auth.currentUser;
 
     if (!user) {
       router.navigate(['/']);

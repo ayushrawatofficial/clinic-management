@@ -1,42 +1,43 @@
 import { Injectable } from '@angular/core';
-import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore';
-import { FirebaseService } from './firebase';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  collectionData
+} from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class ServiceService {
 
-  constructor(private firebase: FirebaseService) {}
+  constructor(private firestore: Firestore) {}
 
+  // 🔥 GET (REAL-TIME)
   getServices(): Observable<any[]> {
-    return new Observable(observer => {
-
-      const ref = collection(this.firebase.db, 'services');
-
-      const unsubscribe = onSnapshot(ref, snapshot => {
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...(doc.data() as any)
-        }));
-        observer.next(data);
-      });
-
-      return () => unsubscribe();
-    });
+    const ref = collection(this.firestore, 'services');
+    return collectionData(ref, { idField: 'id' });
   }
 
+  // 🔥 ADD
   async addService(data: any) {
-    const ref = collection(this.firebase.db, 'services');
+    const ref = collection(this.firestore, 'services');
     return await addDoc(ref, data);
   }
 
+  // 🔥 UPDATE
   async updateService(id: string, data: any) {
-    const ref = doc(this.firebase.db, 'services', id);
+    const ref = doc(this.firestore, 'services', id);
     return await updateDoc(ref, data);
   }
 
+  // 🔥 DELETE
   async deleteService(id: string) {
-    const ref = doc(this.firebase.db, 'services', id);
+    const ref = doc(this.firestore, 'services', id);
     return await deleteDoc(ref);
   }
 }

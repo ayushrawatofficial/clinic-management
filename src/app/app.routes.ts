@@ -14,7 +14,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
     children: [
       {
-        path: 'home',
+        path: 'dashboard',
         loadComponent: () =>
           import('./modules/dashboard/pages/home/home')
             .then(m => m.HomeComponent)
@@ -37,11 +37,18 @@ export const routes: Routes = [
       },
 
       {
-        path: 'dashboard',
+        path: 'patients',
         loadComponent: () =>
           import('./modules/patients/pages/patient-list/patient-list')
-            .then(m => m.PatientList)
-      }
+            .then(m => m.PatientListComponent)
+      },
+
+      {
+  path: 'patients/:id',
+  loadComponent: () =>
+    import('./modules/patients/pages/patient-detail/patient-detail')
+      .then(m => m.PatientDetailComponent)
+}
     ]
   }
 ];

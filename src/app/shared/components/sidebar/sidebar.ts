@@ -14,12 +14,12 @@ export class SidebarComponent {
   collapsed = false;
 
   menu = [
-    { name: 'Dashboard', icon: '🏠', route: '/home' },
-    { name: 'Patients', icon: '🧑', route: '/dashboard' },
+    { name: 'Dashboard', icon: '🏠', route: '/dashboard' },
+    { name: 'Patients', icon: '🧑', route: '/patients' },
     { name: 'Services', icon: '🧾', route: '/services' },
     { name: 'Products', icon: '💊', route: '/products' },
-    { name: 'Expenses', icon: '💰', route: '/expenses' },
-    { name: 'Users', icon: '👥', route: '/admin' }
+    // { name: 'Expenses', icon: '💰', route: '/expenses' },
+    // { name: 'Users', icon: '👥', route: '/admin' }
   ];
 
   constructor(private router: Router) {

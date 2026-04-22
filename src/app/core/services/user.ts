@@ -1,56 +1,66 @@
 import { Injectable } from '@angular/core';
-import { collection, addDoc, doc, updateDoc, deleteDoc, onSnapshot, getDocs, query, where } from 'firebase/firestore';
-import { FirebaseService } from './firebase';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  collectionData,
+  query,
+  where,
+  getDocs
+} from '@angular/fire/firestore';
+
 import { Observable } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class UserService {
 
-  constructor(private firebase: FirebaseService) {}
+  constructor(private firestore: Firestore) {}
 
+  // 🔥 REAL-TIME USERS
   getUsers(): Observable<any[]> {
-    return new Observable(observer => {
-      const ref = collection(this.firebase.db, 'users');
-
-      const unsub = onSnapshot(ref, snapshot => {
-        const data = snapshot.docs.map(doc => ({
-          id: doc.id,
-          ...(doc.data() as any)
-        }));
-        observer.next(data);
-      });
-
-      return () => unsub();
-    });
+    const ref = collection(this.firestore, 'users');
+    return collectionData(ref, { idField: 'id' });
   }
+
+  // 🔍 GET USER BY EMAIL
   async getUserByEmail(email: string) {
 
-  const ref = collection(this.firebase.db, 'users');
+    const ref = collection(this.firestore, 'users');
+    const q = query(ref, where('email', '==', email));
 
-  const q = query(ref, where('email', '==', email));
+    const snapshot = await getDocs(q);
 
-  const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      const docSnap = snapshot.docs[0];
+      return {
+        id: docSnap.id,
+        ...(docSnap.data() as any)
+      };
+    }
 
-  if (!snapshot.empty) {
-    const doc = snapshot.docs[0];
-    return {
-      id: doc.id,
-      ...(doc.data() as any)
-    };
+    return null;
   }
 
-  return null;
-}
-
-  addUser(data: any) {
-    return addDoc(collection(this.firebase.db, 'users'), data);
+  // ➕ ADD USER
+  async addUser(data: any) {
+    const ref = collection(this.firestore, 'users');
+    return await addDoc(ref, data);
   }
 
-  updateUser(id: string, data: any) {
-    return updateDoc(doc(this.firebase.db, 'users', id), data);
+  // ✏️ UPDATE USER
+  async updateUser(id: string, data: any) {
+    const ref = doc(this.firestore, 'users', id);
+    return await updateDoc(ref, data);
   }
 
-  deleteUser(id: string) {
-    return deleteDoc(doc(this.firebase.db, 'users', id));
+  // 🗑 DELETE USER
+  async deleteUser(id: string) {
+    const ref = doc(this.firestore, 'users', id);
+    return await deleteDoc(ref);
   }
 }

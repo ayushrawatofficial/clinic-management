@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
-
 import { Router } from '@angular/router';
-import { FirebaseService } from '../../../core/services/firebase';
+
+import { Auth, signOut } from '@angular/fire/auth';
+import { onAuthStateChanged } from 'firebase/auth';
+
 import { UserService } from '../../../core/services/user';
 
 @Component({
@@ -13,34 +14,45 @@ import { UserService } from '../../../core/services/user';
   templateUrl: './header.html',
   styleUrls: ['./header.scss']
 })
-export class HeaderComponent implements OnInit {
+export class HeaderComponent implements OnInit, OnDestroy {
 
   userName = '';
   role = '';
   time = '';
   date = '';
 
+  intervalId: any;
+
   constructor(
-    private firebase: FirebaseService,
+    private auth: Auth,
     private userService: UserService,
     private router: Router
   ) {}
 
-  async ngOnInit() {
-    const user = this.firebase.auth.currentUser;
+  ngOnInit() {
 
-    if (user?.email) {
-      const dbUser = await this.userService.getUserByEmail(user.email);
+    // 🔥 SAFE AUTH (handles refresh properly)
+    onAuthStateChanged(this.auth, async (user) => {
 
-      this.userName = dbUser?.name || 'User';
-      this.role = dbUser?.role || '';
-    }
+      if (user?.email) {
+        const dbUser = await this.userService.getUserByEmail(user.email);
 
+        this.userName = dbUser?.name || 'User';
+        this.role = dbUser?.role || '';
+      }
+
+    });
+
+    // ⏱ TIME
     this.updateTime();
 
-    setInterval(() => {
+    this.intervalId = setInterval(() => {
       this.updateTime();
     }, 1000);
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.intervalId);
   }
 
   updateTime() {
@@ -49,8 +61,8 @@ export class HeaderComponent implements OnInit {
     this.date = now.toDateString();
   }
 
-  logout() {
-    this.firebase.auth.signOut();
+  async logout() {
+    await signOut(this.auth); // ✅ AngularFire logout
     this.router.navigate(['/']);
   }
 }

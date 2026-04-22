@@ -1,0 +1,43 @@
+<div class="overlay"></div>
+
+<div class="dialog">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <h3>Patient Registered</h3>
+      <span class="sub">Invoice Generated Successfully</span>
+    </div>
+    <span class="close" (click)="onClose()">✕</span>
+  </div>
+
+  <!-- BODY -->
+  <div class="body">
+
+    <div class="card">
+      <div class="name">{{patient?.name}}</div>
+      <div class="mobile">{{patient?.mobile}}</div>
+
+      <div class="amount">
+        ₹{{patient?.total}}
+        <span>Total Amount</span>
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="actions">
+
+      <button (click)="handlePrint()">🖨 Print</button>
+      <button (click)="handlePdf()">📄 Download</button>
+      <button (click)="handleWhatsapp()">📱 WhatsApp</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 🔥 HIDDEN INVOICE RENDER -->
+<div id="invoice-container" class="print-area">
+  <app-invoice [data]="patient"></app-invoice>
+</div>

@@ -1,0 +1,101 @@
+/* OVERLAY */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(6px);
+}
+
+/* DIALOG */
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 380px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+
+  box-shadow: 0 30px 80px rgba(0,0,0,0.2);
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.sub {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.close {
+  cursor: pointer;
+}
+
+/* BODY */
+.body {
+  margin-top: 20px;
+}
+
+/* CARD */
+.card {
+  text-align: center;
+  padding: 16px;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+
+.name {
+  font-weight: 600;
+}
+
+.mobile {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.amount {
+  margin-top: 10px;
+  font-size: 22px;
+  font-weight: bold;
+}
+
+.amount span {
+  display: block;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ACTIONS */
+.actions {
+  margin-top: 16px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+button {
+  padding: 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  background: #2563eb;
+  color: white;
+}
+
+/* HIDDEN */
+.print-area {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+}
