@@ -4,6 +4,11 @@
   height: 100vh;
 }
 
+html, body {
+  height: 100%;
+  overflow: hidden; /* 🔥 stops page scroll */
+}
+
 /* BELOW HEADER */
 .body {
   display: flex;
@@ -13,9 +18,8 @@
 
 .content {
   flex: 1;
-  padding: 16px;
-  background: #f9fafb;
-  overflow-y: auto;
+  overflow: hidden; 
+  display: flex;
 }
 
 app-loader,

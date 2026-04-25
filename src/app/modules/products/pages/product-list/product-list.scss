@@ -1,7 +1,10 @@
 .page {
-  padding: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden; 
 }
-
 /* HEADER */
 .header-bar {
   display: flex;
@@ -36,9 +39,15 @@
 /* TABLE */
 .table {
   border: 1px solid #eee;
+  background: white;
   border-radius: 10px;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
+
+  height: calc(100vh - 260px); /* adjust if needed */
 }
+
 
 .row {
   display: grid;
@@ -49,8 +58,12 @@
 }
 
 .header {
-  background: #f8fafc;
   font-weight: 600;
+  background: #f8fafc;
+
+  position: sticky;
+  top: 0;
+  z-index: 3;
 }
 
 /* 🔥 FILTER ROW */
@@ -90,12 +103,28 @@
   border-radius: 6px;
 }
 
+.edit:hover{
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #ebf5fb; 
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
 .delete {
   background: #fee2e2;
   color: #b91c1c;
   border: none;
   padding: 5px 8px;
   border-radius: 6px;
+}
+
+.delete:hover{
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #fcecec;; 
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 /* NO DATA */

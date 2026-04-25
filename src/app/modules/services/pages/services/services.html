@@ -65,43 +65,48 @@
       <div></div>
     </div>
 
-    <!-- DATA -->
-    <ng-container *ngIf="filtered.length > 0; else noData">
+    <!-- 🔥 SCROLLABLE BODY -->
+    <div class="table-body">
 
-      <div class="row" *ngFor="let s of filtered; trackBy: trackById">
+      <ng-container *ngIf="filtered.length > 0; else noData">
 
-        <div class="center">
-          <input type="checkbox"
-                 [(ngModel)]="s.selected"
-                 (change)="updateSelectionState()" />
+        <div class="row" *ngFor="let s of filtered; trackBy: trackById">
+
+          <div class="center">
+            <input type="checkbox"
+                   [(ngModel)]="s.selected"
+                   (change)="updateSelectionState()" />
+          </div>
+
+          <div>{{s.name}}</div>
+          <div>{{s.category}}</div>
+          <div class="ellipsis">{{s.description || '-'}}</div>
+          <div>₹{{s.price}}</div>
+          <div>{{ s.discountType === 'percent' ? (s.discountValue + '%') : ('₹' + s.discountValue) }}</div>
+          <div class="final">₹{{s.finalPrice}}</div>
+
+          <div>
+            {{ s.discountExpiry ? (s.discountExpiry | date:'shortDate') : 'No Expiry' }}
+          </div>
+
+          <div class="actions">
+            <button class="edit" (click)="openDialog(s)">Edit</button>
+            <button class="delete" (click)="delete(s.id)">Delete</button>
+          </div>
+
         </div>
 
-        <div>{{s.name}}</div>
-        <div>{{s.category}}</div>
-        <div class="ellipsis">{{s.description || '-'}}</div>
-        <div>₹{{s.price}}</div>
-        <div>{{ s.discountType === 'percent' ? (s.discountValue + '%') : ('₹' + s.discountValue) }}</div>
-        <div class="final">₹{{s.finalPrice}}</div>
+      </ng-container>
 
-        <div>
-  {{ s.discountExpiry ? (s.discountExpiry | date:'shortDate') : 'No Expiry' }}
-</div>
+      <ng-template #noData>
+        <div class="no-data">No services found</div>
+      </ng-template>
 
-        <div class="actions">
-          <button class="edit" (click)="openDialog(s)">Edit</button>
-          <button class="delete" (click)="delete(s.id)">Delete</button>
-        </div>
-
-      </div>
-
-    </ng-container>
-
-    <ng-template #noData>
-      <div class="no-data">No services found</div>
-    </ng-template>
+    </div>
 
   </div>
-<!-- DIALOG -->
+
+  <!-- DIALOG -->
   <app-add-service-dialog
     *ngIf="showDialog"
     [data]="editData"
@@ -109,4 +114,5 @@
     (onSave)="handleSave($event)"
     (onClose)="closeDialog()">
   </app-add-service-dialog>
+
 </div>

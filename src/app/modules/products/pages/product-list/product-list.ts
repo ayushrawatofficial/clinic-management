@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { ProductService } from '../../../../core/services/product';
 import { AddProductComponent } from '../add-product/add-product';
+import { ToastService } from '../../../../shared/services/toast';
+import { LoaderService } from '../../../../shared/services/loader';
 
 @Component({
   selector: 'app-product-list',
@@ -30,12 +32,19 @@ export class ProductListComponent implements OnInit {
   status: ''
 };
 
-  constructor(private productService: ProductService) {}
+  constructor(private productService: ProductService,
+    private toast: ToastService,
+    private loader: LoaderService,
+    private cdr: ChangeDetectorRef) {}
 
   ngOnInit() {
+    this.loader.show();
     this.productService.getProducts().subscribe(data => {
       this.products = data || [];
       this.applyFilter();
+
+      this.loader.hide();
+      this.cdr.detectChanges();
     });
   }
 
@@ -71,24 +80,24 @@ export class ProductListComponent implements OnInit {
     });
   }
 
-  openAdd() {
-    this.selectedProduct = null;
-    this.showDialog = true;
-  }
-
-  openEdit(p: any) {
-    this.selectedProduct = p;
+  openDialog(data: any = null) {
+    this.selectedProduct = data;
     this.showDialog = true;
   }
 
   async delete(p: any) {
-    if (!confirm('Delete product?')) return;
+    this.loader.show();
     await this.productService.deleteProduct(p.id);
+    this.toast.show('Service deleted', 'error');
+
+    this.loader.hide();
   }
 
   closeDialog() {
     this.showDialog = false;
     this.selectedProduct = null;
+     this.cdr.detectChanges();
+
   }
 
   get totalProducts() {

@@ -15,7 +15,7 @@
       </div>
     </div>
 
-    <button class="add-btn" (click)="openAdd()">+ Add Product</button>
+    <button class="add-btn" (click)="openDialog()">+ Add Product</button>
 
   </div>
 
@@ -33,36 +33,22 @@
     </div>
 
     <!-- 🔥 FILTER ROW (LIKE SERVICES) -->
-    <div class="row filters">
-
-      <input placeholder="Name"
-        [(ngModel)]="filters.name"
-        (input)="applyFilter()" />
-
-      <input placeholder="Description"
-        [(ngModel)]="filters.desc"
-        (input)="applyFilter()" />
-
-      <input placeholder="Price"
-        [(ngModel)]="filters.price"
-        (input)="applyFilter()" />
-
-      <input placeholder="Stock"
-        [(ngModel)]="filters.stock"
-        (input)="applyFilter()" />
-
-      <select [(ngModel)]="filters.status" (change)="applyFilter()">
+    <div class="row filter">
+      <div><input [(ngModel)]="filters.name" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.desc" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.price" (input)="applyFilter()" /></div>
+      <div><input [(ngModel)]="filters.stock" (input)="applyFilter()" /></div>
+      <div><select [(ngModel)]="filters.status" (change)="applyFilter()">
         <option value="">All</option>
         <option value="ok">Available</option>
         <option value="low">Low</option>
         <option value="out">Out</option>
-      </select>
-
-      <div></div> <!-- empty for actions -->
-
+      </select></div>
+      <div></div>
     </div>
 
     <!-- DATA -->
+      <div class="table-body">
     <ng-container *ngIf="filtered.length > 0; else noData">
 
       <div class="row" *ngFor="let p of filtered">
@@ -83,7 +69,7 @@
         </div>
 
         <div class="actions">
-          <button class="edit" (click)="openEdit(p)">Edit</button>
+          <button class="edit" (click)="openDialog(p)">Edit</button>
           <button class="delete" (click)="delete(p)">Delete</button>
         </div>
 
@@ -95,6 +81,7 @@
       <div class="no-data">No products found</div>
     </ng-template>
 
+  </div>
   </div>
 
   <!-- DIALOG -->
