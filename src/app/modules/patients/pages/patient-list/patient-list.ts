@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { AddPatientComponent } from '../add-patient/add-patient';
 import { PatientService } from '../../../../core/services/patient';
 import { VisitService } from '../../../../core/services/visit';
+import { InvoiceService } from '../../../../core/services/invoice';
 import { Router } from '@angular/router';
 import { LoaderService } from '../../../../shared/services/loader';
 import { ToastService } from '../../../../shared/services/toast';
@@ -36,6 +37,7 @@ export class PatientListComponent implements OnInit {
   constructor(
     private patientService: PatientService,
     private visitService: VisitService,
+    private invoiceService: InvoiceService,
     private router: Router,
     private cdr: ChangeDetectorRef,
     private toast: ToastService,
@@ -46,33 +48,40 @@ export class PatientListComponent implements OnInit {
     this.loadData();
   }
 
-  // 🔥 LOAD BOTH PATIENTS + VISITS
+  // 🔥 LOAD BOTH PATIENTS + VISITS + INVOICES
   loadData() {
   this.loader.show();
   this.patientService.getPatients().subscribe((patients: any[]) => {
 
     this.visitService.getVisits().subscribe((visits: any[]) => {
 
-      this.patients = patients || [];
+      this.invoiceService.getAllInvoices().subscribe((invoices: any[]) => {
 
-      this.patients = this.patients.map(p => {
+        this.patients = patients || [];
 
-        const patientVisits = visits
-          .filter(v => v.patientId === p.id)
-          .sort((a, b) =>
-            new Date(b.visitDate).getTime() - new Date(a.visitDate).getTime()
-          );
+        this.patients = this.patients.map(p => {
 
-        return {
-          ...p,
-          lastVisit: patientVisits.length ? patientVisits[0].visitDate : null
-        };
+          const patientVisits = visits
+            .filter(v => v.patientId === p.id)
+            .sort((a, b) =>
+              new Date(b.visitDate).getTime() - new Date(a.visitDate).getTime()
+            );
+
+          const patientInvoices = invoices.filter(inv => inv.patientCode === p.patientCode);
+
+          return {
+            ...p,
+            lastVisit: patientVisits.length ? patientVisits[0].visitDate : null,
+            totalInvoices: patientInvoices.length
+          };
+        });
+
+        this.applyFilter();
+        
+        this.loader.hide();
+        this.cdr.detectChanges();
       });
 
-      this.applyFilter();
-      
-      this.loader.hide();
-      this.cdr.detectChanges();
     });
 
   });

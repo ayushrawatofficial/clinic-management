@@ -97,7 +97,7 @@ export class ProductListComponent implements OnInit {
   async delete(p: any) {
     this.loader.show();
     await this.productService.deleteProduct(p.id);
-    this.toast.show('Product deleted', 'error');
+    this.toast.show('Product deleted successfully', 'error');
 
     this.loader.hide();
      this.cdr.detectChanges();

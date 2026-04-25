@@ -176,7 +176,7 @@ this.loader.show();
 
     await this.serviceService.deleteService(id);
 
-    this.toast.show('Service deleted', 'error');
+    this.toast.show('Service deleted successfully', 'error');
 
     this.cdr.detectChanges();
     this.loader.hide();

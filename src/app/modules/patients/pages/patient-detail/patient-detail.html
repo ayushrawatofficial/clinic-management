@@ -29,16 +29,23 @@
 
     <div class="row header">
       <div>Invoice</div>
+      <div>Services</div>
+      <div>Products</div>
       <div>Date</div>
       <div>Total</div>
       <div>Actions</div>
     </div>
 
+    <div class="table-body">
+
+      <!-- <ng-container *ngIf="filtered.length > 0; else noData"> -->
     <div class="row"
          *ngFor="let i of invoices"
          (click)="selectInvoice(i)">
 
-      <div>{{ i.invoiceNumber }}</div>
+      <div title="{{ i.invoiceNumber }}">{{ i.invoiceNumber }}</div>
+      <div title="{{ getServicesList(i.services) }}" class="services-cell">{{ getServicesList(i.services) }}</div>
+      <div title="{{ getProductsList(i.products) }}" class="services-cell">{{ getProductsList(i.products) }}</div>
       <div>{{ i.createdAt | date:'short' }}</div>
       <div>₹{{ i.total }}</div>
 
@@ -47,6 +54,13 @@
         <span (click)="selectInvoice(i); handlePdf()">📄</span>
         <span (click)="handleWhatsapp(i)">📱</span>
       </div>
+
+    </div>
+       <!-- </ng-container> -->
+
+      <!-- <ng-template #noData>
+        <div class="no-data">No Invoice found</div>
+      </ng-template> -->
 
     </div>
 

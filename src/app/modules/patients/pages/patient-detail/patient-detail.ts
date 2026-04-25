@@ -7,6 +7,7 @@ import { InvoiceService } from '../../../../core/services/invoice';
 import { InvoiceComponent } from '../../../../shared/components/invoice/invoice';
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { LoaderService } from '../../../../shared/services/loader';
 
 @Component({
   selector: 'app-patient-detail',
@@ -27,7 +28,8 @@ export class PatientDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private patientService: PatientService,
     private invoiceService: InvoiceService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private loader: LoaderService,
   ) {}
 
   ngOnInit() {
@@ -38,15 +40,20 @@ export class PatientDetailComponent implements OnInit {
   }
 
   loadPatient() {
+    this.loader.show();
     this.patientService.getPatients().subscribe((data: any[]) => {
       this.patient = data.find(p => p.patientCode === this.patientCode);
+        this.loader.hide();
       this.cdr.detectChanges();
     });
   }
 
   loadInvoices() {
+    this.loader.show();
     this.invoiceService.getInvoicesByPatientCode(this.patientCode).subscribe((data: any[]) => {
       this.invoices = data || [];
+      console.log('Invoices:', this.invoices);
+      this.loader.hide();
        this.cdr.detectChanges();
     });
   }
@@ -98,5 +105,17 @@ export class PatientDetailComponent implements OnInit {
     msg += `\n💰 Total: ₹${inv.total}`;
 
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+  }
+
+  // 🔥 GET SERVICES LIST FOR DISPLAY
+  getServicesList(services: any[]): string {
+    if (!services || services.length === 0) return '-';
+    return services.map(s => s.name).join(', ');
+  }
+
+  // 🔥 GET PRODUCTS LIST FOR DISPLAY
+  getProductsList(products: any[]): string {
+    if (!products || products.length === 0) return '-';
+    return products.map(p => p.name).join(', ');
   }
 }

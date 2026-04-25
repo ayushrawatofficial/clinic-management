@@ -12,8 +12,8 @@ export class InvoiceService {
     return addDoc(ref, data);
   }
 
-  // 🔥 GET BY PATIENT CODE (FINAL)
-  getInvoicesByPatientCode(code: string) {
+ // 🔥 GET INVOICES BY PATIENT CODE
+    getInvoicesByPatientCode(code: string) {
 
     const ref = collection(this.firestore, 'invoices');
 
@@ -21,5 +21,13 @@ export class InvoiceService {
 
     return collectionData(q, { idField: 'id' });
   }
+  // 🔥 GET ALL INVOICES
+  getAllInvoices() {
+    const ref = collection(this.firestore, 'invoices');
+    return collectionData(ref, { idField: 'id' });
+  }
+
+  
+
 
 }
