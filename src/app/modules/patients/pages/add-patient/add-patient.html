@@ -12,7 +12,7 @@
     <!-- MOBILE -->
     <div class="field">
       <label>Mobile *</label>
-      <input [(ngModel)]="mobile" (ngModelChange)="onMobileChange()" />
+      <input [(ngModel)]="mobile" (input)="onMobileInput($event)" />
     </div>
 
     <!-- NAME -->
@@ -24,7 +24,7 @@
     <!-- AGE -->
     <div class="field">
       <label>Age *</label>
-      <input [ngModel]="age" (ngModelChange)="onAgeChange($event)" />
+      <input [(ngModel)]="age" (input)="onAgeInput($event)" />
     </div>
 
     <!-- GENDER -->

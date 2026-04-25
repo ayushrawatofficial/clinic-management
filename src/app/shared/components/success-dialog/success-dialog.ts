@@ -4,6 +4,7 @@ import { InvoiceComponent } from '../invoice/invoice';
 
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import { ConfigService } from '../../../core/config/clinic.service';
 
 @Component({
   selector: 'app-success-dialog',
@@ -17,6 +18,8 @@ export class SuccessDialogComponent {
   @Input() patient: any;
   @Output() close = new EventEmitter();
 
+  constructor(public config: ConfigService) {}
+  
   onClose() {
     this.close.emit();
   }

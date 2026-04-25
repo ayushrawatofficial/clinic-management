@@ -6,6 +6,7 @@ import { Auth, signOut } from '@angular/fire/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 
 import { UserService } from '../../../core/services/user';
+import { ConfigService } from '../../../core/config/clinic.service';
 
 @Component({
   selector: 'app-header',
@@ -26,7 +27,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
   constructor(
     private auth: Auth,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    public config: ConfigService
   ) {}
 
   ngOnInit() {
