@@ -40,8 +40,7 @@
 
       <!-- <ng-container *ngIf="filtered.length > 0; else noData"> -->
     <div class="row"
-         *ngFor="let i of invoices"
-         (click)="selectInvoice(i)">
+         *ngFor="let i of invoices">
 
       <div title="{{ i.invoiceNumber }}">{{ i.invoiceNumber }}</div>
       <div title="{{ getServicesList(i.services) }}" class="services-cell">{{ getServicesList(i.services) }}</div>
@@ -50,9 +49,10 @@
       <div>₹{{ i.total }}</div>
 
       <div class="actions">
-        <span (click)="selectInvoice(i); handlePrint()">🖨</span>
-        <span (click)="selectInvoice(i); handlePdf()">📄</span>
-        <span (click)="handleWhatsapp(i)">📱</span>
+        <span (click)="previewInvoice(i); $event.stopPropagation()">🔍</span>
+        <span (click)="printInvoice(i); $event.stopPropagation()">🖨</span>
+        <span (click)="downloadInvoice(i); $event.stopPropagation()">📄</span>
+        <span (click)="handleWhatsapp(i); $event.stopPropagation()">📱</span>
       </div>
 
     </div>
@@ -66,9 +66,4 @@
 
   </div>
 
-</div>
-
-<!-- 🔥 HIDDEN PRINT AREA -->
-<div id="invoice-print" class="print-area" *ngIf="selectedInvoice">
-  <app-invoice [data]="selectedInvoice"></app-invoice>
 </div>

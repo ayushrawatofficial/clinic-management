@@ -280,7 +280,11 @@ export class AddPatientComponent implements OnInit {
       const services = this.selectedServices.map(s => ({
         id: s.id,
         name: s.name,
-        price: s.price || s.finalPrice
+        price: s.finalPrice ?? s.price,
+        originalPrice: s.price ?? s.finalPrice,
+        discountValue: s.discountValue ?? 0,
+        discountType: s.discountType,
+        total: s.finalPrice ?? s.price
       }));
 
       const products = this.selectedProducts.map(p => ({

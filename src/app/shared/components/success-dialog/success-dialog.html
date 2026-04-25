@@ -29,6 +29,7 @@
     <!-- ACTIONS -->
     <div class="actions">
 
+      <button (click)="handlePreview()">🔍 Preview</button>
       <button (click)="handlePrint()">🖨 Print</button>
       <button (click)="handlePdf()">📄 Download</button>
       <button (click)="handleWhatsapp()">📱 WhatsApp</button>
@@ -39,7 +40,3 @@
 
 </div>
 
-<!-- 🔥 HIDDEN INVOICE RENDER -->
-<div id="invoice-container" class="print-area">
-  <app-invoice [data]="patient"></app-invoice>
-</div>

@@ -4,15 +4,13 @@ import { ActivatedRoute } from '@angular/router';
 
 import { PatientService } from '../../../../core/services/patient';
 import { InvoiceService } from '../../../../core/services/invoice';
-import { InvoiceComponent } from '../../../../shared/components/invoice/invoice';
-import html2canvas from 'html2canvas';
-import jsPDF from 'jspdf';
 import { LoaderService } from '../../../../shared/services/loader';
+import { InvoicePrintService } from '../../../../shared/services/invoice-print.service';
 
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
-  imports: [CommonModule, InvoiceComponent],
+  imports: [CommonModule],
   templateUrl: './patient-detail.html',
   styleUrls: ['./patient-detail.scss']
 })
@@ -22,12 +20,11 @@ export class PatientDetailComponent implements OnInit {
   patient: any = null;
   invoices: any[] = [];
 
-  selectedInvoice: any = null;
-
   constructor(
     private route: ActivatedRoute,
     private patientService: PatientService,
     private invoiceService: InvoiceService,
+    private invoicePrint: InvoicePrintService,
     private cdr: ChangeDetectorRef,
     private loader: LoaderService,
   ) {}
@@ -52,59 +49,29 @@ export class PatientDetailComponent implements OnInit {
     this.loader.show();
     this.invoiceService.getInvoicesByPatientCode(this.patientCode).subscribe((data: any[]) => {
       this.invoices = data || [];
-      console.log('Invoices:', this.invoices);
       this.loader.hide();
        this.cdr.detectChanges();
     });
   }
 
   // 🔥 SELECT INVOICE
-  selectInvoice(inv: any) {
-    this.selectedInvoice = inv;
+  // 🔥 SELECT INVOICE THEN PRINT
+  previewInvoice(inv: any) {
+    this.invoicePrint.previewInvoice(inv, `Invoice-${inv.name || 'Invoice'}`);
   }
 
-  // 🖨 PRINT USING COMPONENT
-  handlePrint() {
-    const element = document.getElementById('invoice-print');
-
-    const win = window.open('', '', 'width=900,height=700');
-
-    win?.document.write(`
-      <html>
-        <head><title>Invoice</title></head>
-        <body>${element?.innerHTML}</body>
-      </html>
-    `);
-
-    win?.document.close();
-    setTimeout(() => win?.print(), 300);
+  printInvoice(inv: any) {
+    this.invoicePrint.printInvoice(inv, `Invoice-${inv.name || 'Invoice'}`);
   }
 
-  // 📄 PDF
-  async handlePdf() {
-    const element = document.getElementById('invoice-print') as HTMLElement;
-
-    const canvas = await html2canvas(element, { scale: 2 });
-    const imgData = canvas.toDataURL('image/png');
-
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    pdf.addImage(imgData, 'PNG', 10, 10, 190, 0);
-
-    pdf.save(`Invoice-${this.patient.name}.pdf`);
+  // 🔥 SELECT INVOICE THEN DOWNLOAD PDF
+  async downloadInvoice(inv: any) {
+    await this.invoicePrint.downloadInvoice(inv, `Invoice-${inv.name || 'Invoice'}.pdf`);
   }
 
   // 📱 WHATSAPP
   handleWhatsapp(inv: any) {
-    let msg = `🧾 *Clinic Invoice*\n\n`;
-    msg += `👤 ${inv.name}\n📱 ${inv.mobile}\n\n`;
-
-    inv.services.forEach((s: any, i: number) => {
-      msg += `${i + 1}. ${s.name} - ₹${s.price}\n`;
-    });
-
-    msg += `\n💰 Total: ₹${inv.total}`;
-
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    this.invoicePrint.shareWhatsApp(inv);
   }
 
   // 🔥 GET SERVICES LIST FOR DISPLAY
