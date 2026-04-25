@@ -42,12 +42,19 @@ export const routes: Routes = [
           import('./modules/patients/pages/patient-list/patient-list')
             .then(m => m.PatientListComponent)
       },
+      
 
       {
-  path: 'patients/:id',
+  path: 'patients/:code',
   loadComponent: () =>
     import('./modules/patients/pages/patient-detail/patient-detail')
       .then(m => m.PatientDetailComponent)
+},
+{
+  path: 'products',
+  loadComponent: () =>
+    import('./modules/products/pages/product-list/product-list')
+      .then(m => m.ProductListComponent)
 }
     ]
   }

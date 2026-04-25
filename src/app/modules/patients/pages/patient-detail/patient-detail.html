@@ -1,1 +1,60 @@
-<p>patient-detail works!</p>
+<div class="page" *ngIf="patient">
+
+  <!-- 🔥 HEADER CARD -->
+  <div class="card">
+
+    <div class="top">
+      <div>
+        <h2>{{ patient.name }}</h2>
+        <span class="code">{{ patient.patientCode }}</span>
+      </div>
+      <div class="badge">Active</div>
+    </div>
+
+    <div class="grid">
+      <div><b>Mobile:</b> {{ patient.mobile }}</div>
+      <div><b>Age:</b> {{ patient.age }}</div>
+      <div><b>Gender:</b> {{ patient.gender }}</div>
+      <div><b>Referred By:</b> {{ patient.referredBy || '-' }}</div>
+    </div>
+
+    <div class="full">
+      <b>Concerns:</b> {{ patient.concerns || '-' }}
+    </div>
+
+  </div>
+
+  <!-- 🔥 INVOICE GRID -->
+  <div class="table">
+
+    <div class="row header">
+      <div>Invoice</div>
+      <div>Date</div>
+      <div>Total</div>
+      <div>Actions</div>
+    </div>
+
+    <div class="row"
+         *ngFor="let i of invoices"
+         (click)="selectInvoice(i)">
+
+      <div>{{ i.invoiceNumber }}</div>
+      <div>{{ i.createdAt | date:'short' }}</div>
+      <div>₹{{ i.total }}</div>
+
+      <div class="actions">
+        <span (click)="selectInvoice(i); handlePrint()">🖨</span>
+        <span (click)="selectInvoice(i); handlePdf()">📄</span>
+        <span (click)="handleWhatsapp(i)">📱</span>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- 🔥 HIDDEN PRINT AREA -->
+<div id="invoice-print" class="print-area" *ngIf="selectedInvoice">
+  <app-invoice [data]="selectedInvoice"></app-invoice>
+</div>

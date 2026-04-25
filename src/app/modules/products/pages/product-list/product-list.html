@@ -1,0 +1,107 @@
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header-bar">
+
+    <div class="stats">
+      <div class="card">
+        <div>Total Products</div>
+        <h2>{{ totalProducts }}</h2>
+      </div>
+
+      <div class="card warn">
+        <div>Low Stock</div>
+        <h2>{{ lowStock }}</h2>
+      </div>
+    </div>
+
+    <button class="add-btn" (click)="openAdd()">+ Add Product</button>
+
+  </div>
+
+  <!-- TABLE -->
+  <div class="table">
+
+    <!-- HEADER -->
+    <div class="row header">
+      <div>Name</div>
+      <div>Description</div>
+      <div>Price</div>
+      <div>Stock</div>
+      <div>Status</div>
+      <div>Actions</div>
+    </div>
+
+    <!-- 🔥 FILTER ROW (LIKE SERVICES) -->
+    <div class="row filters">
+
+      <input placeholder="Name"
+        [(ngModel)]="filters.name"
+        (input)="applyFilter()" />
+
+      <input placeholder="Description"
+        [(ngModel)]="filters.desc"
+        (input)="applyFilter()" />
+
+      <input placeholder="Price"
+        [(ngModel)]="filters.price"
+        (input)="applyFilter()" />
+
+      <input placeholder="Stock"
+        [(ngModel)]="filters.stock"
+        (input)="applyFilter()" />
+
+      <select [(ngModel)]="filters.status" (change)="applyFilter()">
+        <option value="">All</option>
+        <option value="ok">Available</option>
+        <option value="low">Low</option>
+        <option value="out">Out</option>
+      </select>
+
+      <div></div> <!-- empty for actions -->
+
+    </div>
+
+    <!-- DATA -->
+    <ng-container *ngIf="filtered.length > 0; else noData">
+
+      <div class="row" *ngFor="let p of filtered">
+
+        <div class="name">{{ p.name }}</div>
+
+        <div class="desc" [title]="p.description">
+          {{ p.description || '-' }}
+        </div>
+
+        <div>₹{{ p.price }}</div>
+        <div>{{ p.stock }}</div>
+
+        <div>
+          <span *ngIf="getStatus(p) === 'ok'" class="ok">Available</span>
+          <span *ngIf="getStatus(p) === 'low'" class="low">Low</span>
+          <span *ngIf="getStatus(p) === 'out'" class="out">Out</span>
+        </div>
+
+        <div class="actions">
+          <button class="edit" (click)="openEdit(p)">Edit</button>
+          <button class="delete" (click)="delete(p)">Delete</button>
+        </div>
+
+      </div>
+
+    </ng-container>
+
+    <ng-template #noData>
+      <div class="no-data">No products found</div>
+    </ng-template>
+
+  </div>
+
+  <!-- DIALOG -->
+  <app-add-product
+    *ngIf="showDialog"
+    [product]="selectedProduct"
+    (onClose)="closeDialog()">
+  </app-add-product>
+
+</div>

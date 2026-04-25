@@ -94,9 +94,13 @@ export class PatientListComponent implements OnInit {
   }
 
   openPatient(patient: any) {
-    this.router.navigate(['/patients', patient.id]);
+  if (!patient?.patientCode) {
+    alert('Patient code missing. Please refresh or fix data.');
+    return;
   }
 
+  this.router.navigate(['/patients', patient.patientCode]);
+}
   openDialog() {
     this.showDialog = true;
   }

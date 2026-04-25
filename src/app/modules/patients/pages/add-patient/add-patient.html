@@ -2,160 +2,150 @@
 
 <div class="dialog">
 
-  <!-- HEADER -->
   <div class="header">
     <h3>Add Patient</h3>
     <span (click)="close()">✕</span>
   </div>
 
-  <!-- BODY -->
   <div class="body grid">
 
     <!-- MOBILE -->
     <div class="field">
       <label>Mobile *</label>
-      <input
-        [value]="mobile"
-        (input)="onMobileInput($event)"
-        maxlength="10"
-        placeholder="Enter 10 digit mobile" />
-
-      <div class="error" *ngIf="errors.mobile">
-        {{ errors.mobile }}
-      </div>
-
-      <div class="hint" *ngIf="existingPatient">
-        Existing patient found
-      </div>
+      <input [(ngModel)]="mobile" (ngModelChange)="onMobileChange()" />
     </div>
 
     <!-- NAME -->
     <div class="field">
       <label>Name *</label>
-      <input
-        [(ngModel)]="name"
-        (input)="validateField('name')"
-        placeholder="Enter name" />
-
-      <div class="error" *ngIf="errors.name">
-        {{ errors.name }}
-      </div>
+      <input [(ngModel)]="name" />
     </div>
 
     <!-- AGE -->
     <div class="field">
       <label>Age *</label>
-      <input
-        [value]="age"
-        (input)="onAgeInput($event)"
-        placeholder="Age" />
-
-      <div class="error" *ngIf="errors.age">
-        {{ errors.age }}
-      </div>
+      <input [ngModel]="age" (ngModelChange)="onAgeChange($event)" />
     </div>
 
     <!-- GENDER -->
     <div class="field">
       <label>Gender</label>
       <select [(ngModel)]="gender">
-        <option value="Male">Male</option>
-        <option value="Female">Female</option>
+        <option>Male</option>
+        <option>Female</option>
       </select>
     </div>
 
-    <!-- CONCERNS -->
-    <div class="field full">
-      <label>Concerns</label>
-      <input
-        [(ngModel)]="concerns"
-        placeholder="Patient concerns" />
-    </div>
-
-    <!-- REFERRED BY -->
-    <div class="field full">
-      <label>Referred By</label>
-      <input
-        [(ngModel)]="referredBy"
-        placeholder="Doctor / Friend / Ads" />
-    </div>
-
     <!-- SERVICES -->
-    <div class="field full">
+    <div class="field half">
       <label>Services</label>
 
-      <!-- SELECT BOX -->
-      <div class="select" (click)="openDropdown($event)">
-
-        <!-- SELECTED CHIPS -->
-        <div class="chips">
-          <span *ngFor="let s of selectedServices">
-            {{ s.name }}
-            <i (click)="remove(s); $event.stopPropagation()">✕</i>
-          </span>
-        </div>
-
-        <!-- PLACEHOLDER -->
-        <span
-          *ngIf="selectedServices.length === 0"
-          class="placeholder">
-          Search & select services
-        </span>
-
-      </div>
-
-      <!-- DROPDOWN -->
-      <div
-        class="dropdown"
-        *ngIf="showDropdown"
-        (click)="$event.stopPropagation()">
-
-        <!-- SEARCH -->
+      <div class="multiselect" (click)="openServiceDropdown($event)">
         <input
           placeholder="Search services..."
-          [(ngModel)]="search"
-          (input)="filter()" />
+          [(ngModel)]="serviceSearch"
+          (input)="filterServices(); $event.stopPropagation()" />
 
-        <!-- OPTIONS -->
-        <div
-          class="item"
-          *ngFor="let s of filteredServices"
-          (click)="toggle(s)">
+        <div class="options" *ngIf="activeDropdown === 'service'">
 
-          <input type="checkbox" [checked]="isSelected(s)" />
+          <div class="option"
+               *ngFor="let s of filteredServices"
+               (click)="toggleService(s); $event.stopPropagation()"
+               [class.selected]="isSelected(s)">
 
-          <span>{{ s.name }}</span>
+            <input type="checkbox"
+                   [checked]="isSelected(s)"
+                   (click)="$event.stopPropagation()" />
 
-          <b>₹{{ s.price || s.finalPrice }}</b>
+            <span>{{s.name}}</span>
+            <b>₹{{s.price || s.finalPrice}}</b>
+
+          </div>
+
         </div>
+      </div>
 
-        <!-- EMPTY -->
-        <div *ngIf="filteredServices.length === 0" class="item">
-          No services found
+      <!-- SELECTED -->
+      <div class="selected-list">
+        <div class="chip" *ngFor="let s of selectedServices">
+          {{s.name}}
+          <span class="price">₹{{s.price || s.finalPrice}}</span>
+          <i (click)="remove(s)">✕</i>
         </div>
-
       </div>
     </div>
 
-    <!-- TOTAL BILL -->
+    <!-- PRODUCTS -->
+    <div class="field half">
+      <label>Products</label>
+
+      <div class="multiselect" (click)="openProductDropdown($event)">
+        <input
+          placeholder="Search products..."
+          [(ngModel)]="productSearch"
+          (input)="filterProducts(); $event.stopPropagation()" />
+
+        <div class="options" *ngIf="activeDropdown === 'product'">
+
+          <div class="option"
+               *ngFor="let p of filteredProducts"
+               [class.disabled]="p.stock === 0"
+               [class.selected]="isProductSelected(p)"
+               (click)="p.stock === 0 ? null : addProduct(p); $event.stopPropagation()">
+
+            <input type="checkbox"
+                   [checked]="isProductSelected(p)"
+                   [disabled]="p.stock === 0"
+                   (click)="$event.stopPropagation()" />
+
+            <span>{{p.name}}</span>
+
+            <div class="right">
+              <b>₹{{p.price}}</b>
+              <small>{{p.stock === 0 ? 'Out' : 'Stock: ' + p.stock}}</small>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SELECTED -->
+      <div class="selected-list">
+        <div class="chip" *ngFor="let p of selectedProducts">
+
+          {{p.name}}
+
+          <div class="qty">
+            <button (click)="decreaseQty(p)">-</button>
+            <span>{{p.qty}}</span>
+            <button (click)="increaseQty(p)">+</button>
+          </div>
+
+          <span class="price">₹{{p.price * p.qty}}</span>
+
+          <i (click)="removeProduct(p)">✕</i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- TOTAL -->
     <div class="field full total">
-      Total Bill: ₹{{ totalAmount }}
+      Total: ₹{{totalAmount}}
     </div>
 
   </div>
 
-  <!-- FOOTER -->
   <div class="footer">
     <button (click)="close()">Cancel</button>
-
     <button (click)="save()" [disabled]="saving">
-      {{ saving ? 'Saving...' : 'Save Patient' }}
+      {{saving ? 'Saving...' : 'Save'}}
     </button>
   </div>
 
 </div>
 
-<!-- SUCCESS DIALOG -->
 <app-success-dialog
   *ngIf="showSuccess"
   [patient]="savedPatient"

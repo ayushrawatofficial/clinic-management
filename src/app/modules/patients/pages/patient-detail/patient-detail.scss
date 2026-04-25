@@ -1,0 +1,72 @@
+.page {
+  padding: 20px;
+}
+
+/* CARD */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.code {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.badge {
+  background: #22c55e;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 10px;
+  gap: 10px;
+}
+
+.full {
+  margin-top: 10px;
+}
+
+/* TABLE */
+.table {
+  border: 1px solid #eee;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 140px;
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.header {
+  background: #f8fafc;
+  font-weight: bold;
+}
+
+.actions span {
+  margin-right: 10px;
+  cursor: pointer;
+}
+
+/* PRINT */
+.print-area {
+  position: absolute;
+  left: -9999px;
+}

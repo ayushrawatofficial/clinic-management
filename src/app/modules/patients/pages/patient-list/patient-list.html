@@ -20,8 +20,9 @@
       </div>
     </div>
 
-    <button class="add-btn" (click)="openDialog()">+ Add Patient</button>
-
+    <button class="add-btn" (click)="openDialog(); $event.stopPropagation()">
+  + Add Patient
+</button>
   </div>
 
   <!-- SEARCH -->
@@ -41,7 +42,10 @@
       <div>Last Visit</div>
     </div>
 
-    <div class="row" *ngFor="let p of filtered" (click)="openPatient(p)">
+    <div class="row"
+     *ngFor="let p of filtered"
+     (click)="openPatient(p); $event.stopPropagation()"
+     style="cursor: pointer;">
       <div>{{ p.patientCode }}</div>
       <div>{{ p.name }}</div>
       <div>{{ p.mobile }}</div>

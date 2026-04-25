@@ -62,16 +62,16 @@ export class HomeComponent implements OnInit {
 
         { name: 'Products', route: '/products', icon: '💊', count: 0 },
 
-        { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true, count: 0 },
+        // { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true, count: 0 },
 
-        { name: 'Users', route: '/admin', icon: '👥', adminOnly: true, count: users.length }
+        // { name: 'Users', route: '/admin', icon: '👥', adminOnly: true, count: users.length }
       ];
 
       // 🔥 ROLE FILTER
-      this.modules = allModules.filter(m => {
-        if (m.adminOnly && role !== 'admin') return false;
-        return true;
-      });
+      // this.modules = allModules.filter(m => {
+      //   if (m.adminOnly && role !== 'admin') return false;
+      //   return true;
+      // });
 
     });
   }

@@ -3,18 +3,19 @@ import {
   EventEmitter,
   Output,
   OnInit,
-  ElementRef,
   HostListener
 } from '@angular/core';
 
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 import { PatientService } from '../../../../core/services/patient';
 import { ServiceService } from '../../../../core/services/service';
+import { ProductService } from '../../../../core/services/product';
 import { VisitService } from '../../../../core/services/visit';
-import { SuccessDialogComponent } from '../../../../shared/components/success-dialog/success-dialog';
 import { InvoiceService } from '../../../../core/services/invoice';
+
+import { SuccessDialogComponent } from '../../../../shared/components/success-dialog/success-dialog';
 
 @Component({
   selector: 'app-add-patient',
@@ -27,6 +28,7 @@ export class AddPatientComponent implements OnInit {
 
   @Output() onClose = new EventEmitter();
 
+  // ================= PATIENT =================
   mobile = '';
   name = '';
   age: number | null = null;
@@ -37,15 +39,24 @@ export class AddPatientComponent implements OnInit {
   patients: any[] = [];
   existingPatient: any = null;
 
+  // ================= SERVICES =================
   services: any[] = [];
   filteredServices: any[] = [];
   selectedServices: any[] = [];
+  serviceSearch = '';
 
-  showDropdown = false;
-  search = '';
-  saving = false;
+  // ================= PRODUCTS =================
+  products: any[] = [];
+  filteredProducts: any[] = [];
+  selectedProducts: any[] = [];
+  productSearch = '';
 
+  // ================= UI =================
+  activeDropdown: 'service' | 'product' | null = null;
   totalAmount = 0;
+  saving = false;
+  showSuccess = false;
+  savedPatient: any;
 
   submitted = false;
 
@@ -55,64 +66,42 @@ export class AddPatientComponent implements OnInit {
     age: ''
   };
 
-  showSuccess = false;
-  savedPatient: any;
-
   constructor(
     private patientService: PatientService,
-    private visitService: VisitService,
     private serviceService: ServiceService,
-    private el: ElementRef,
+    private productService: ProductService,
+    private visitService: VisitService,
     private invoiceService: InvoiceService
   ) {}
 
+  // ================= INIT =================
   ngOnInit() {
-    this.patientService.getPatients().subscribe(data => {
-      this.patients = data || [];
+
+    this.patientService.getPatients().subscribe(d => {
+      this.patients = d || [];
     });
 
-    this.serviceService.getServices().subscribe(data => {
-      this.services = data || [];
-      this.filteredServices = data || [];
+    this.serviceService.getServices().subscribe(d => {
+      this.services = d || [];
+      this.filteredServices = d || [];
+    });
+
+    this.productService.getProducts().subscribe(d => {
+      this.products = d || [];
+      this.filteredProducts = d || [];
     });
   }
 
-  // 🔥 LIVE VALIDATION
-  validateField(field: string) {
+  // ================= INPUT =================
 
-    if (field === 'mobile') {
-      this.errors.mobile =
-        this.mobile.length !== 10 ? 'Enter valid 10 digit mobile' : '';
-    }
+  onMobileChange() {
+    this.mobile = (this.mobile || '').replace(/\D/g, '').slice(0, 10);
 
-    if (field === 'name') {
-      this.errors.name =
-        !this.name.trim() ? 'Name is required' : '';
-    }
+    this.errors.mobile =
+      this.mobile.length !== 10 ? 'Enter valid 10 digit mobile' : '';
 
-    if (field === 'age') {
-      this.errors.age =
-        !this.age ? 'Age required' : '';
-    }
-  }
-
-  validate() {
-    this.validateField('mobile');
-    this.validateField('name');
-    this.validateField('age');
-
-    return !this.errors.mobile && !this.errors.name && !this.errors.age;
-  }
-
-  // 🔒 MOBILE STRICT INPUT
-  onMobileInput(event: any) {
-    const val = event.target.value.replace(/\D/g, '').slice(0, 10);
-    this.mobile = val;
-
-    this.validateField('mobile');
-
-    if (val.length === 10) {
-      const found = this.patients.find(p => p.mobile === val);
+    if (this.mobile.length === 10) {
+      const found = this.patients.find(p => p.mobile === this.mobile);
 
       if (found) {
         this.existingPatient = found;
@@ -127,65 +116,161 @@ export class AddPatientComponent implements OnInit {
     }
   }
 
-  // 🔒 AGE STRICT INPUT
-  onAgeInput(event: any) {
-  const val = event.target.value.replace(/\D/g, '').slice(0, 3);
-  this.age = val ? Number(val) : null;
-
-  this.validateField('age');
-}
-
-  openDropdown(e: Event) {
-    e.stopPropagation();
-    this.showDropdown = true;
+  onAgeChange(value: any) {
+    const val = (value || '').toString().replace(/\D/g, '').slice(0, 3);
+    this.age = val ? Number(val) : null;
+    this.errors.age = this.age ? '' : 'Age required';
   }
 
-  filter() {
-    const term = this.search.toLowerCase();
+  // ================= VALIDATION =================
+
+  validate(): boolean {
+
+    this.errors = {
+      mobile: '',
+      name: '',
+      age: ''
+    };
+
+    if (!this.mobile || this.mobile.length !== 10) {
+      this.errors.mobile = 'Enter valid mobile';
+    }
+
+    if (!this.name.trim()) {
+      this.errors.name = 'Name required';
+    }
+
+    if (!this.age) {
+      this.errors.age = 'Age required';
+    }
+
+    return !this.errors.mobile && !this.errors.name && !this.errors.age;
+  }
+
+  // ================= DROPDOWN =================
+
+  openServiceDropdown(e: Event) {
+    e.stopPropagation();
+    this.activeDropdown =
+      this.activeDropdown === 'service' ? null : 'service';
+  }
+
+  openProductDropdown(e: Event) {
+    e.stopPropagation();
+    this.activeDropdown =
+      this.activeDropdown === 'product' ? null : 'product';
+  }
+
+  @HostListener('document:click')
+  closeDropdown() {
+    this.activeDropdown = null;
+  }
+
+  // ================= SERVICES =================
+
+  filterServices() {
+    const t = this.serviceSearch.toLowerCase();
     this.filteredServices = this.services.filter(s =>
-      s.name.toLowerCase().includes(term)
+      s.name.toLowerCase().includes(t)
     );
   }
 
-  toggle(service: any) {
-  const exists = this.selectedServices.find(s => s.id === service.id);
+  toggleService(s: any) {
+    const exists = this.selectedServices.find(x => x.id === s.id);
 
-  if (exists) {
-    this.selectedServices = this.selectedServices.filter(s => s.id !== service.id);
-  } else {
-    this.selectedServices.push(service);
-  }
+    if (exists) {
+      this.selectedServices =
+        this.selectedServices.filter(x => x.id !== s.id);
+    } else {
+      this.selectedServices.push(s);
+    }
 
-  this.calculateTotal();
-}
-
-  remove(service: any) {
-    this.selectedServices = this.selectedServices.filter(s => s.id !== service.id);
     this.calculateTotal();
   }
 
-  calculateTotal() {
-    this.totalAmount = this.selectedServices.reduce((sum, s) => {
-      return sum + Number(s.price || s.finalPrice || 0);
-    }, 0);
+  isSelected(s: any) {
+    return this.selectedServices.some(x => x.id === s.id);
   }
 
-  @HostListener('document:click', ['$event'])
-  closeDropdown(e: Event) {
-    const target = e.target as HTMLElement;
-    if (!target.closest('.select') && !target.closest('.dropdown')) {
-      this.showDropdown = false;
+  remove(s: any) {
+    this.selectedServices =
+      this.selectedServices.filter(x => x.id !== s.id);
+
+    this.calculateTotal();
+  }
+
+  // ================= PRODUCTS =================
+
+  filterProducts() {
+    const t = this.productSearch.toLowerCase();
+    this.filteredProducts = this.products.filter(p =>
+      p.name.toLowerCase().includes(t)
+    );
+  }
+
+  addProduct(p: any) {
+
+    if (p.stock === 0) return;
+
+    const existing = this.selectedProducts.find(x => x.id === p.id);
+
+    if (existing) {
+      if (existing.qty < p.stock) {
+        existing.qty++;
+      }
+    } else {
+      this.selectedProducts.push({
+        ...p,
+        qty: 1
+      });
+    }
+
+    this.calculateTotal();
+  }
+
+  removeProduct(p: any) {
+    this.selectedProducts =
+      this.selectedProducts.filter(x => x.id !== p.id);
+
+    this.calculateTotal();
+  }
+
+  increaseQty(p: any) {
+    if (p.qty < p.stock) {
+      p.qty++;
+      this.calculateTotal();
     }
   }
 
-  generateId() {
-    return `PAT-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+  decreaseQty(p: any) {
+    if (p.qty > 1) {
+      p.qty--;
+      this.calculateTotal();
+    }
   }
+
+  isProductSelected(p: any): boolean {
+    return this.selectedProducts.some(x => x.id === p.id);
+  }
+
+  // ================= TOTAL =================
+
+  calculateTotal() {
+
+    const serviceTotal = this.selectedServices.reduce((sum, s) =>
+      sum + Number(s.price || s.finalPrice || 0), 0);
+
+    const productTotal = this.selectedProducts.reduce((sum, p) =>
+      sum + (p.price * p.qty), 0);
+
+    this.totalAmount = serviceTotal + productTotal;
+  }
+
+  // ================= SAVE =================
 
   async save() {
 
   this.submitted = true;
-
   if (!this.validate()) return;
 
   this.saving = true;
@@ -195,86 +280,73 @@ export class AddPatientComponent implements OnInit {
     let patientId = '';
     let patientCode = '';
 
-    // ✅ STEP 1: SAVE PATIENT ONLY (FAST)
+    // ONLY BLOCKING CALL
     if (this.existingPatient) {
       patientId = this.existingPatient.id;
       patientCode = this.existingPatient.patientCode;
     } else {
       const patient = {
         name: this.name,
-        age: this.age || 0,
+        age: this.age,
         gender: this.gender,
         mobile: this.mobile,
-        concerns: this.concerns,
-        referredBy: this.referredBy,
         createdAt: new Date().toISOString(),
-        patientCode: this.generateId()
+        patientCode: `PAT-${Date.now()}`
       };
 
       const res = await this.patientService.addPatient(patient);
-
       patientId = res.id;
       patientCode = patient.patientCode;
     }
 
-    // ✅ PREPARE DATA
-    const services = this.selectedServices.map(s => ({
-      id: s.id,
-      name: s.name,
-      price: Number(s.price || s.finalPrice || 0)
-    }));
+    const services = this.selectedServices;
+    const products = this.selectedProducts;
 
     const invoiceData = {
       patientId,
+      patientCode,
       name: this.name,
       mobile: this.mobile,
       services,
+      products,
       total: this.totalAmount,
       invoiceNumber: `INV-${Date.now()}`
     };
 
-    // ✅ STEP 2: SHOW SUCCESS IMMEDIATELY
+    // 🚀 SHOW SUCCESS IMMEDIATELY
     this.savedPatient = invoiceData;
     this.showSuccess = true;
     this.saving = false;
 
-    // 🚀 STEP 3: BACKGROUND TASKS (NON BLOCKING)
-    setTimeout(async () => {
+    // 🔥 BACKGROUND SAVE (NON BLOCKING)
+    setTimeout(() => {
 
-      try {
-        await this.visitService.addVisit({
+      Promise.all([
+
+        this.visitService.addVisit({
           patientId,
-          visitDate: new Date().toISOString(),
           services,
+          products,
           total: this.totalAmount
-        });
-      } catch (e) {
-        console.warn('Visit failed:', e);
-      }
+        }),
 
-      try {
-        await this.invoiceService.createInvoice({
-          ...invoiceData,
-          createdAt: new Date().toISOString()
-        });
-      } catch (e) {
-        console.warn('Invoice failed:', e);
-      }
+        this.invoiceService.createInvoice(invoiceData),
+
+        ...products.map(p =>
+          this.productService.updateProduct(p.id, {
+            stock: p.stock - p.qty
+          })
+        )
+
+      ]).catch(err => console.error('Background save failed', err));
 
     }, 0);
 
   } catch (e) {
     console.error(e);
-    alert(JSON.stringify(e));
     this.saving = false;
+    alert('Error saving');
   }
-}
-  generateInvoiceNumber() {
-  return `INV-${Date.now()}`;
-}
-
-isSelected(service: any): boolean {
-  return this.selectedServices.some(s => s.id === service.id);
 }
 
   close() {
