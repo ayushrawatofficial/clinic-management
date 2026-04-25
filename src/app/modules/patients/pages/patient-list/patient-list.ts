@@ -6,6 +6,8 @@ import { AddPatientComponent } from '../add-patient/add-patient';
 import { PatientService } from '../../../../core/services/patient';
 import { VisitService } from '../../../../core/services/visit';
 import { Router } from '@angular/router';
+import { LoaderService } from '../../../../shared/services/loader';
+import { ToastService } from '../../../../shared/services/toast';
 
 @Component({
   selector: 'app-patient-list',
@@ -35,7 +37,9 @@ export class PatientListComponent implements OnInit {
     private patientService: PatientService,
     private visitService: VisitService,
     private router: Router,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private toast: ToastService,
+    private loader: LoaderService,
   ) {}
 
   ngOnInit() {
@@ -44,6 +48,7 @@ export class PatientListComponent implements OnInit {
 
   // 🔥 LOAD BOTH PATIENTS + VISITS
   loadData() {
+  this.loader.show();
   this.patientService.getPatients().subscribe((patients: any[]) => {
 
     this.visitService.getVisits().subscribe((visits: any[]) => {
@@ -65,6 +70,9 @@ export class PatientListComponent implements OnInit {
       });
 
       this.applyFilter();
+      
+      this.loader.hide();
+      this.cdr.detectChanges();
     });
 
   });

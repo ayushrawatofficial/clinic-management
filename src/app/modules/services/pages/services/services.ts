@@ -55,14 +55,15 @@ export class ServicesComponent implements OnInit, OnDestroy {
     private cdr: ChangeDetectorRef
   ) {}
 
-  ngOnInit() {
+  async ngOnInit() {
     this.loader.show();
 
-    this.sub = this.serviceService.getServices().subscribe(data => {
+    this.sub = this.serviceService.getServices().subscribe(async data => {
 
       const now = new Date();
 
       // 🔥 AUTO EXPIRY RESET
+      const updatePromises: Promise<void>[] = [];
       data.forEach(s => {
 
         if (s.discountExpiry) {
@@ -71,11 +72,11 @@ export class ServicesComponent implements OnInit, OnDestroy {
 
           if (expiry < now && s.discountValue > 0) {
 
-            this.serviceService.updateService(s.id, {
+            updatePromises.push(this.serviceService.updateService(s.id, {
               discountValue: 0,
               finalPrice: s.price,
               discountExpiry: null
-            });
+            }).catch(error => console.error('Error updating service:', error)));
           }
         }
 
@@ -85,11 +86,18 @@ export class ServicesComponent implements OnInit, OnDestroy {
         }
       });
 
+      // Wait for all updates to complete
+      await Promise.all(updatePromises);
+
       this.services = data;
       this.applyFilter();
 
       this.loader.hide();
       this.cdr.detectChanges();
+    }, error => {
+      console.error('Error loading services:', error);
+      this.loader.hide();
+      this.toast.show('Failed to load services', 'error');
     });
   }
 
@@ -170,6 +178,7 @@ this.loader.show();
 
     this.toast.show('Service deleted', 'error');
 
+    this.cdr.detectChanges();
     this.loader.hide();
   }
 

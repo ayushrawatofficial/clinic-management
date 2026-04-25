@@ -9,19 +9,20 @@
         <h2>{{ totalPatients }}</h2>
       </div>
 
-      <div class="card">
-        <div>Today</div>
-        <h2>{{ patientsToday }}</h2>
-      </div>
-
-      <div class="card">
+            <div class="card-month">
         <div>This Month</div>
         <h2>{{ patientsThisMonth }}</h2>
       </div>
+
+      <div class="card-today">
+        <div>Today Visited</div>
+        <h2>{{ patientsToday }}</h2>
+      </div>
+
     </div>
 
     <button class="add-btn" (click)="openDialog(); $event.stopPropagation()">
-  + Add Patient
+  Add Patient
 </button>
   </div>
 
@@ -42,10 +43,14 @@
       <div>Last Visit</div>
     </div>
 
+
+    <div class="table-body">
+
+      <ng-container *ngIf="filtered.length > 0; else noData">
+
     <div class="row"
      *ngFor="let p of filtered"
-     (click)="openPatient(p); $event.stopPropagation()"
-     style="cursor: pointer;">
+     (click)="openPatient(p); $event.stopPropagation()">
       <div>{{ p.patientCode }}</div>
       <div>{{ p.name }}</div>
       <div>{{ p.mobile }}</div>
@@ -54,6 +59,13 @@
       <div>
         {{ p.lastVisit ? (p.lastVisit | date:'shortDate') : '—' }}
       </div>
+    </div>
+     </ng-container>
+
+      <ng-template #noData>
+        <div class="no-data">No Patients found</div>
+      </ng-template>
+
     </div>
 
   </div>

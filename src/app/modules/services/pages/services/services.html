@@ -7,7 +7,7 @@
       <h2>{{ totalServices }}</h2>
     </div>
 
-    <button class="add-btn" (click)="openDialog()">+ Add Service</button>
+    <button class="add-btn" (click)="openDialog()">Add Service</button>
   </div>
 
   <!-- BULK BAR -->
@@ -36,12 +36,10 @@
 
     <!-- HEADER -->
     <div class="row header">
-      <div class="center">
         <input type="checkbox"
                [checked]="isAllSelected"
                [indeterminate]="isIndeterminate"
                (change)="toggleAll($event)">
-      </div>
       <div>Name</div>
       <div>Category</div>
       <div>Description</div>

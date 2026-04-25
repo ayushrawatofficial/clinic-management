@@ -1,5 +1,9 @@
 .page {
   padding: 20px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden; 
 }
 
 /* HEADER */
@@ -16,9 +20,24 @@
 }
 
 .card {
-  background: #f8fafc;
-  padding: 10px 14px;
+  background: white;
+  padding: 12px 16px;
   border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.card-today {
+  background: #fff7ed;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+.card-month {
+  background: #d7e2aa;
+  padding: 12px 16px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
 }
 
 .add-btn {
@@ -26,6 +45,15 @@
   color: white;
   padding: 10px 16px;
   border-radius: 8px;
+  border: none;
+}
+
+.add-btn:hover{
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #346eec;; 
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.05);
 }
 
 /* SEARCH */
@@ -45,18 +73,41 @@
 /* TABLE */
 .table {
   border: 1px solid #eee;
+  background: white;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  height: calc(100vh - 260px); /* adjust if needed */
+}
+
+.table-body {
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
 }
 
 .row {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  padding: 10px;
+  grid-template-columns: 4fr 4fr 2fr 1.2fr 1.2fr 1fr;
   border-bottom: 1px solid #eee;
+  align-items: center;
 }
 
-.row.header {
-  font-weight: bold;
-  background: #f1f5f9;
+.row > div {
+  padding: 14px 16px;
+}
+
+.header {
+  font-weight: 600;
+  background: #f8fafc;
+
+  position: sticky;
+  top: 0;
+  z-index: 3;
+
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .row:hover {

@@ -1,7 +1,7 @@
-<div 
-  class="toast" 
-  *ngIf="toast.showToast"
-  [ngClass]="toast.type"
->
-  {{toast.message}}
+<div class="toast"
+     *ngIf="toast.toast$ | async as t"
+     [ngClass]="t.type">
+
+  {{ t.message }}
+
 </div>

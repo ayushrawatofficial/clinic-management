@@ -11,5 +11,5 @@ import { LoaderService } from '../../services/loader';
 })
 export class Loader {
 
-  constructor(public loader: LoaderService) {}
+   constructor(public loader: LoaderService) {}
 }

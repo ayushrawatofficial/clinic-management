@@ -6,6 +6,7 @@ import { ProductService } from '../../../../core/services/product';
 import { AddProductComponent } from '../add-product/add-product';
 import { ToastService } from '../../../../shared/services/toast';
 import { LoaderService } from '../../../../shared/services/loader';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-product-list',
@@ -32,6 +33,8 @@ export class ProductListComponent implements OnInit {
   status: ''
 };
 
+  sub!: Subscription;
+
   constructor(private productService: ProductService,
     private toast: ToastService,
     private loader: LoaderService,
@@ -39,12 +42,16 @@ export class ProductListComponent implements OnInit {
 
   ngOnInit() {
     this.loader.show();
-    this.productService.getProducts().subscribe(data => {
+    this.sub = this.productService.getProducts().subscribe(data => {
       this.products = data || [];
       this.applyFilter();
 
       this.loader.hide();
       this.cdr.detectChanges();
+    }, error => {
+      console.error('Error loading products:', error);
+      this.loader.hide();
+      this.toast.show('Failed to load products', 'error');
     });
   }
 
@@ -79,7 +86,9 @@ export class ProductListComponent implements OnInit {
 
     });
   }
-
+ ngOnDestroy() {
+    this.sub?.unsubscribe();
+  }
   openDialog(data: any = null) {
     this.selectedProduct = data;
     this.showDialog = true;
@@ -88,9 +97,10 @@ export class ProductListComponent implements OnInit {
   async delete(p: any) {
     this.loader.show();
     await this.productService.deleteProduct(p.id);
-    this.toast.show('Service deleted', 'error');
+    this.toast.show('Product deleted', 'error');
 
     this.loader.hide();
+     this.cdr.detectChanges();
   }
 
   closeDialog() {
