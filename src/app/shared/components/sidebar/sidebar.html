@@ -1,19 +1,5 @@
 <div class="sidebar" [class.collapsed]="collapsed">
 
-  <!-- TOP BAR -->
-  <div class="top-bar">
-
-    <div class="logo-section" *ngIf="!collapsed">
-      <span class="logo" >🏥</span>
-      <span class="title">Clinic</span>
-    </div>
-
-    <button class="toggle-btn" (click)="toggle()">
-      ☰
-    </button>
-
-  </div>
-
   <!-- MENU -->
   <div class="menu">
     <div class="item" *ngFor="let m of menu" (click)="navigate(m.route)">

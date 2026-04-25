@@ -12,4 +12,10 @@ import { FooterComponent } from '../../components/footer/footer';
   templateUrl: './main-layout.html',
   styleUrl: './main-layout.scss',
 })
-export class MainLayout {}
+export class MainLayout {
+  collapsed = false;
+
+  toggleSidebar() {
+    this.collapsed = !this.collapsed;
+  }
+}

@@ -1,12 +1,18 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  EventEmitter,
+  Output,
+  Input,
+  ChangeDetectorRef
+} from '@angular/core';
 import { Router } from '@angular/router';
-
 import { Auth, signOut } from '@angular/fire/auth';
 import { onAuthStateChanged } from 'firebase/auth';
-
-import { UserService } from '../../../core/services/user';
 import { ConfigService } from '../../../core/config/clinic.service';
+import { UserService } from '../../../core/services/user';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
@@ -22,34 +28,38 @@ export class HeaderComponent implements OnInit, OnDestroy {
   time = '';
   date = '';
 
+  @Output() toggle = new EventEmitter();
+  @Input() collapsed = false;
+
   intervalId: any;
 
   constructor(
     private auth: Auth,
     private userService: UserService,
     private router: Router,
-    public config: ConfigService
+    public config: ConfigService,
+    private cdr: ChangeDetectorRef   // 🔥 IMPORTANT
   ) {}
 
   ngOnInit() {
 
-    // 🔥 SAFE AUTH (handles refresh properly)
     onAuthStateChanged(this.auth, async (user) => {
-
       if (user?.email) {
         const dbUser = await this.userService.getUserByEmail(user.email);
-
         this.userName = dbUser?.name || 'User';
         this.role = dbUser?.role || '';
+        this.cdr.detectChanges(); // 🔥 ensure UI update
       }
-
     });
 
-    // ⏱ TIME
     this.updateTime();
 
     this.intervalId = setInterval(() => {
       this.updateTime();
+
+      // 🔥 FORCE UI UPDATE
+      this.cdr.detectChanges();
+
     }, 1000);
   }
 
@@ -59,12 +69,22 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   updateTime() {
     const now = new Date();
-    this.time = now.toLocaleTimeString();
-    this.date = now.toDateString();
+
+    this.time = now.toLocaleTimeString('en-IN', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    this.date = now.toLocaleDateString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
   }
 
   async logout() {
-    await signOut(this.auth); // ✅ AngularFire logout
+    await signOut(this.auth);
     this.router.navigate(['/']);
   }
 }

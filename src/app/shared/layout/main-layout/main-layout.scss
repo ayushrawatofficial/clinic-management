@@ -1,17 +1,25 @@
-.layout {
+.app-container {
   display: flex;
+  flex-direction: column;
   height: 100vh;
 }
 
-.main {
-  flex: 1;
+/* BELOW HEADER */
+.body {
   display: flex;
-  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
 }
 
 .content {
   flex: 1;
-  padding: 20px;
-  background: #f8fafc;
-  overflow: auto;
+  padding: 16px;
+  background: #f9fafb;
+  overflow-y: auto;
+}
+
+app-loader,
+app-toast {
+  position: fixed;
+  z-index: 9999;
 }

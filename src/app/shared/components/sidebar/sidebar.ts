@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -11,7 +11,7 @@ import { Router } from '@angular/router';
 })
 export class SidebarComponent {
 
-  collapsed = false;
+   @Input() collapsed: boolean = false;
 
   menu = [
     { name: 'Dashboard', icon: '🏠', route: '/dashboard' },

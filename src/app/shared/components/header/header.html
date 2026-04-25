@@ -1,9 +1,19 @@
 <div class="header">
 
-  <div class="left">
-    <img [src]="config.clinic.logo" />
-   <span>{{ config.clinic.name }}</span>
+   <div class="left">
+
+     <!-- TOGGLE BUTTON -->
+    <div class="toggle" (click)="toggle.emit()">
+      ☰
+    </div>
+
+    <img
+  [src]="collapsed ? 'assets/logo-small.png' : config.clinic.logo"
+  class="logo"
+/>
+    <span class="title">{{ config.clinic.name }}</span>
   </div>
+
 
   <div class="right">
 

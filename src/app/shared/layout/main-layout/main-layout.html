@@ -1,16 +1,23 @@
-<app-loader></app-loader>
+<div class="app-container">
+
+  <app-loader></app-loader>
 <app-toast></app-toast> 
 
-<div class="layout">
-  <app-sidebar></app-sidebar>
 
-  <div class="main">
-    <app-header></app-header>
+  <!-- HEADER -->
+  <app-header (toggle)="toggleSidebar()"></app-header>
 
+  <!-- BODY -->
+  <div class="body">
+
+    <!-- SIDEBAR -->
+    <app-sidebar [collapsed]="collapsed"></app-sidebar>
+
+    <!-- CONTENT -->
     <div class="content">
       <router-outlet></router-outlet>
     </div>
-
-    <app-footer></app-footer>
   </div>
+
+ <app-footer></app-footer>
 </div>
