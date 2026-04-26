@@ -24,46 +24,98 @@
 
   </div>
 
-  <!-- 🔥 INVOICE GRID -->
-  <div class="table">
+  <div class="tab-bar">
+    <button type="button" [class.active]="activeTab === 'invoices'" (click)="activeTab = 'invoices'">Invoices</button>
+    <button type="button" [class.active]="activeTab === 'whatsapp'" (click)="activeTab = 'whatsapp'">WhatsApp Broadcast</button>
+  </div>
 
-    <div class="row header">
-      <div>Invoice</div>
-      <div>Services</div>
-      <div>Products</div>
-      <div>Date</div>
-      <div>Total</div>
-      <div>Actions</div>
-    </div>
+  <div *ngIf="activeTab === 'invoices'">
+    <div class="table">
 
-    <div class="table-body">
+      <div class="row header">
+        <div>Invoice</div>
+        <div>Services</div>
+        <div>Products</div>
+        <div>Payment</div>
+        <div>Date</div>
+        <div>Total</div>
+        <div>Actions</div>
+      </div>
 
-      <!-- <ng-container *ngIf="filtered.length > 0; else noData"> -->
-    <div class="row"
-         *ngFor="let i of invoices">
+      <div class="table-body">
+        <div class="row" *ngFor="let i of invoices">
 
-      <div title="{{ i.invoiceNumber }}">{{ i.invoiceNumber }}</div>
-      <div title="{{ getServicesList(i.services) }}" class="services-cell">{{ getServicesList(i.services) }}</div>
-      <div title="{{ getProductsList(i.products) }}" class="services-cell">{{ getProductsList(i.products) }}</div>
-      <div>{{ i.createdAt | date:'short' }}</div>
-      <div>₹{{ i.total }}</div>
+          <div title="{{ i.invoiceNumber }}">{{ i.invoiceNumber }}</div>
+          <div title="{{ getServicesList(i.services) }}" class="services-cell">{{ getServicesList(i.services) }}</div>
+          <div title="{{ getProductsList(i.products) }}" class="services-cell">{{ getProductsList(i.products) }}</div>
+          <div>{{ i.paymentMode || '-' }}</div>
+          <div>{{ i.createdAt | date:'short' }}</div>
+          <div>₹{{ i.total }}</div>
 
-      <div class="actions">
-        <span (click)="previewInvoice(i); $event.stopPropagation()">🔍</span>
-        <span (click)="printInvoice(i); $event.stopPropagation()">🖨</span>
-        <span (click)="downloadInvoice(i); $event.stopPropagation()">📄</span>
-        <span (click)="handleWhatsapp(i); $event.stopPropagation()">📱</span>
+          <div class="actions">
+            <span title="Preview" (click)="previewInvoice(i); $event.stopPropagation()">🔍</span>
+            <span title="Print" (click)="printInvoice(i); $event.stopPropagation()">🖨</span>
+            <span title="Download PDF" (click)="downloadInvoice(i); $event.stopPropagation()">📄</span>
+            <span title="WhatsApp" (click)="handleWhatsapp(i); $event.stopPropagation()">📱</span>
+          </div>
+
+        </div>
       </div>
 
     </div>
-       <!-- </ng-container> -->
+  </div>
 
-      <!-- <ng-template #noData>
-        <div class="no-data">No Invoice found</div>
-      </ng-template> -->
+  <div *ngIf="activeTab === 'whatsapp'" class="broadcast-grid">
+    <div class="message-panel">
+      <div class="panel-card">
+        <h3>WhatsApp Broadcast</h3>
+        <p class="hint">This feature pre-fills the message in WhatsApp. Attach the invoice file or image manually in WhatsApp after opening the chat.</p>
 
+        <label class="field-label">Message</label>
+        <textarea [(ngModel)]="broadcastMessage" placeholder="Type your message here"></textarea>
+
+        <div class="field-row">
+          <label class="field-label">Image (optional)</label>
+          <input type="file" accept="image/*" (change)="handleBroadcastImageSelected($event)" />
+          <div class="small-note">Selected: {{ broadcastImageName || 'none' }}</div>
+        </div>
+
+        <div class="broadcast-actions">
+          <button type="button" (click)="copyBroadcastMessage()">Copy Message</button>
+          <button type="button" (click)="openWhatsAppBroadcast()">Open WhatsApp</button>
+        </div>
+
+        <div class="hint">Use WhatsApp Web or mobile app after opening the link. This is a free, no-API solution.</div>
+      </div>
     </div>
 
+    <div class="receiver-panel">
+      <div class="panel-card">
+        <div class="receiver-header">
+          <div>
+            <h3>Registered Patients</h3>
+            <div class="small-note">{{ selectedPatientsCount }} selected</div>
+          </div>
+          <div class="receiver-actions">
+            <button type="button" (click)="toggleSelectAll(true)">Select All</button>
+            <button type="button" (click)="toggleSelectAll(false)">Clear All</button>
+          </div>
+        </div>
+
+        <div class="receiver-list">
+          <div class="receiver-row" *ngFor="let p of patients">
+            <label>
+              <input
+                type="checkbox"
+                [checked]="selectedPatientIds.has(p.id)"
+                (change)="togglePatientSelection(p.id, $any($event.target).checked)"
+              />
+              <span>{{ p.name }} - {{ p.mobile || 'No mobile' }}</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>

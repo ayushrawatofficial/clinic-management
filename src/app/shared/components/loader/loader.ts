@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { LoaderService } from '../../services/loader';
 
@@ -9,7 +9,9 @@ import { LoaderService } from '../../services/loader';
   templateUrl: './loader.html',
   styleUrls: ['./loader.scss']
 })
-export class Loader {
+export class LoaderComponent {
 
-   constructor(public loader: LoaderService) {}
+  @Input() localLoading = false;
+
+  constructor(public loader: LoaderService) {}
 }

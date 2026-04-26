@@ -16,11 +16,12 @@ import { VisitService } from '../../../../core/services/visit';
 import { InvoiceService } from '../../../../core/services/invoice';
 
 import { SuccessDialogComponent } from '../../../../shared/components/success-dialog/success-dialog';
+import { LoaderComponent } from '../../../../shared/components/loader/loader';
 
 @Component({
   selector: 'app-add-patient',
   standalone: true,
-  imports: [CommonModule, FormsModule, SuccessDialogComponent],
+  imports: [CommonModule, FormsModule, SuccessDialogComponent, LoaderComponent],
   templateUrl: './add-patient.html',
   styleUrls: ['./add-patient.scss']
 })
@@ -38,6 +39,10 @@ export class AddPatientComponent implements OnInit {
 
   patients: any[] = [];
   existingPatient: any = null;
+
+  // ================= PAYMENT =================
+  paymentMode = '';
+  paymentModes = ['Cash', 'Card', 'UPI'];
 
   // ================= SERVICES =================
   services: any[] = [];
@@ -63,7 +68,8 @@ export class AddPatientComponent implements OnInit {
   errors: any = {
     mobile: '',
     name: '',
-    age: ''
+    age: '',
+    paymentMode: ''
   };
 
   constructor(
@@ -89,11 +95,20 @@ export class AddPatientComponent implements OnInit {
   // ================= INPUT HANDLING =================
 
   onMobileInput(event: any) {
-    let val = event.target.value || '';
-    val = val.replace(/\D/g, '').slice(0, 10); // only digits, max 10
+    const input = event.target;
+    let val = input.value.replace(/\D/g, ''); // only digits
+    val = val.substring(0, 10); // max 10 digits
+
+    // Update the input value if it changed
+    if (val !== input.value) {
+      input.value = val;
+    }
     this.mobile = val;
 
-    this.errors.mobile = val.length !== 10 ? 'Enter valid 10 digit mobile' : '';
+    this.errors.mobile = '';
+    if (val && val.length !== 10) {
+      this.errors.mobile = 'Enter valid 10 digit mobile';
+    }
 
     if (val.length === 10) {
       const found = this.patients.find(p => p.mobile === val);
@@ -110,22 +125,43 @@ export class AddPatientComponent implements OnInit {
     }
   }
 
-  onAgeInput(event: any) {
-    let val = event.target.value || '';
-    val = val.replace(/\D/g, '').slice(0, 3); // only digits, max 3
-    this.age = val ? Number(val) : null;
+  onMobileKeyPress(event: any) {
+    const charCode = event.which ? event.which : event.keyCode;
+    // Allow only numbers (48-57 are 0-9)
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
+    }
+  }
 
-    this.errors.age = this.age ? '' : 'Age required';
+  onAgeInput(event: any) {
+    const input = event.target;
+    let val = input.value.replace(/\D/g, ''); // only digits
+    val = val.substring(0, 3); // max 3 digits
+
+    // Update the input value if it changed
+    if (val !== input.value) {
+      input.value = val;
+    }
+
+    const numVal = val === '' ? null : Number(val);
+    this.age = numVal;
+
+    this.errors.age = '';
+    if (this.age === null || this.age === undefined) {
+      this.errors.age = 'Age required';
+    } else if (this.age < 0 || this.age > 120) {
+      this.errors.age = 'Age must be between 0-120';
+    }
   }
 
   // ================= VALIDATION =================
 
   validate(): boolean {
 
-    this.errors = { mobile: '', name: '', age: '' };
+    this.errors = { mobile: '', name: '', age: '', paymentMode: '' };
 
     if (!this.mobile || this.mobile.length !== 10) {
-      this.errors.mobile = 'Enter valid mobile';
+      this.errors.mobile = 'Enter valid 10 digit mobile';
     }
 
     if (!this.name || !this.name.trim()) {
@@ -134,9 +170,17 @@ export class AddPatientComponent implements OnInit {
 
     if (!this.age) {
       this.errors.age = 'Age required';
+    } else if (this.age < 0 || this.age > 120) {
+      this.errors.age = 'Age must be between 0-120';
     }
 
-    return !this.errors.mobile && !this.errors.name && !this.errors.age;
+    // Payment mode required if services or products selected
+    const hasServicesOrProducts = this.selectedServices.length > 0 || this.selectedProducts.length > 0;
+    if (hasServicesOrProducts && !this.paymentMode) {
+      this.errors.paymentMode = 'Payment mode required when services/products selected';
+    }
+
+    return !this.errors.mobile && !this.errors.name && !this.errors.age && !this.errors.paymentMode;
   }
 
   // ================= DROPDOWN =================
@@ -303,6 +347,7 @@ export class AddPatientComponent implements OnInit {
         services,
         products,
         total: this.totalAmount,
+        paymentMode: this.paymentMode,
         invoiceNumber: `INV-${Date.now()}`,
         date: new Date()
       };
@@ -341,7 +386,7 @@ export class AddPatientComponent implements OnInit {
     }
   }
 
-  close() {
+  close(): void {
     this.onClose.emit();
   }
 }

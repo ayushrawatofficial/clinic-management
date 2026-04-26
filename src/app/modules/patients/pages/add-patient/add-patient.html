@@ -12,19 +12,22 @@
     <!-- MOBILE -->
     <div class="field">
       <label>Mobile *</label>
-      <input [(ngModel)]="mobile" (input)="onMobileInput($event)" />
+      <input type="tel" [(ngModel)]="mobile" (input)="onMobileInput($event)" (keypress)="onMobileKeyPress($event)" [class.error]="submitted && errors.mobile" maxlength="10" pattern="[0-9]{10}" />
+      <div class="error-msg" *ngIf="submitted && errors.mobile">{{errors.mobile}}</div>
     </div>
 
     <!-- NAME -->
     <div class="field">
       <label>Name *</label>
-      <input [(ngModel)]="name" />
+      <input type="text" [(ngModel)]="name" [class.error]="submitted && errors.name" />
+      <div class="error-msg" *ngIf="submitted && errors.name">{{errors.name}}</div>
     </div>
 
     <!-- AGE -->
     <div class="field">
       <label>Age *</label>
-      <input [(ngModel)]="age" (input)="onAgeInput($event)" />
+      <input type="number" [(ngModel)]="age" (input)="onAgeInput($event)" [class.error]="submitted && errors.age" min="0" max="120" />
+      <div class="error-msg" *ngIf="submitted && errors.age">{{errors.age}}</div>
     </div>
 
     <!-- GENDER -->
@@ -135,6 +138,16 @@
       Total: ₹{{totalAmount}}
     </div>
 
+    <!-- PAYMENT MODE -->
+    <div class="field full" *ngIf="selectedServices.length > 0 || selectedProducts.length > 0">
+      <label>Payment Mode *</label>
+      <select [(ngModel)]="paymentMode" [class.error]="submitted && errors.paymentMode">
+        <option value="">Select Payment Mode</option>
+        <option *ngFor="let mode of paymentModes" [value]="mode">{{mode}}</option>
+      </select>
+      <div class="error-msg" *ngIf="submitted && errors.paymentMode">{{errors.paymentMode}}</div>
+    </div>
+
   </div>
 
   <div class="footer">
@@ -145,6 +158,8 @@
   </div>
 
 </div>
+
+<app-loader [localLoading]="saving"></app-loader>
 
 <app-success-dialog
   *ngIf="showSuccess"

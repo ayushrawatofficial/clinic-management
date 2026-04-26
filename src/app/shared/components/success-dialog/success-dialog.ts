@@ -24,6 +24,10 @@ export class SuccessDialogComponent {
     this.close.emit();
   }
 
+  onLogoError(event: any) {
+    event.target.style.display = 'none';
+  }
+
   handlePreview() {
     this.invoicePrint.previewInvoice(this.patient, `Invoice-${this.patient?.name || 'Invoice'}`);
   }
@@ -38,5 +42,29 @@ export class SuccessDialogComponent {
 
   handleWhatsapp() {
     this.invoicePrint.shareWhatsApp(this.patient);
+  }
+
+  handleSMS() {
+    const message = `Hi ${this.patient.name}, your invoice ${this.patient.invoiceNumber} for ₹${this.patient.total} has been generated. Thank you for visiting ${this.config.clinic.name}.`;
+    const smsUrl = `sms:${this.patient.mobile}?body=${encodeURIComponent(message)}`;
+    window.open(smsUrl, '_blank');
+  }
+
+  handleEmail() {
+    const subject = `Invoice ${this.patient.invoiceNumber} - ${this.config.clinic.name}`;
+    const body = `Dear ${this.patient.name},
+
+Your invoice details:
+Invoice Number: ${this.patient.invoiceNumber}
+Total Amount: ₹${this.patient.total}
+Date: ${new Date(this.patient.date).toLocaleDateString()}
+
+Thank you for visiting ${this.config.clinic.name}.
+
+Regards,
+${this.config.clinic.name}`;
+
+    const emailUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.open(emailUrl, '_blank');
   }
 }
