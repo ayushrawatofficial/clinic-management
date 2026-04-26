@@ -6,6 +6,29 @@ import { CLINIC_CONFIG } from '../../core/config/clinic.config';
 @Injectable({ providedIn: 'root' })
 export class InvoicePrintService {
 
+  private logoBase64: string = '';
+
+  // ✅ logo fix (CORS safe)
+  private async getLogo(): Promise<string> {
+    if (this.logoBase64) return this.logoBase64;
+
+    try {
+      const res = await fetch(CLINIC_CONFIG.logo);
+      const blob = await res.blob();
+
+      this.logoBase64 = await new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+
+      return this.logoBase64;
+    } catch {
+      return CLINIC_CONFIG.logo;
+    }
+  }
+
   private normalizeDate(value: any): Date | null {
     if (!value) return null;
     if (value instanceof Date) return value;
@@ -25,148 +48,238 @@ export class InvoicePrintService {
 
   private formatCurrency(value: any): string {
     const amount = Number(value ?? 0);
-    return `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+    return `₹${amount.toLocaleString('en-IN')}`;
   }
 
   private renderServices(services: any[]): string {
-    if (!services || services.length === 0) {
-      return '<tr><td colspan="5" class="empty">No services</td></tr>';
+    if (!services?.length) {
+      return `<tr><td colspan="5" class="empty">No services</td></tr>`;
     }
 
-    return services.map((service: any, index: number) => {
-      const unitPrice = this.formatCurrency(service.originalPrice ?? service.price ?? 0);
-      const discountValue = service.discountValue ?? 0;
-      const discountText = discountValue
-        ? service.discountType === 'percent'
-          ? `${discountValue}%`
-          : this.formatCurrency(discountValue)
-        : '-';
-      const total = this.formatCurrency(service.total ?? service.price ?? 0);
-
-      return `<tr>\n        <td>${index + 1}. ${service.name || '-'}</td>\n        <td>1</td>\n        <td>${unitPrice}</td>\n        <td>${discountText}</td>\n        <td>${total}</td>\n      </tr>`;
-    }).join('');
+    return services.map((s, i) => `
+      <tr>
+        <td>${i + 1}. ${s.name || '-'}</td>
+        <td>1</td>
+        <td>${this.formatCurrency(s.price)}</td>
+        <td>-</td>
+        <td>${this.formatCurrency(s.total ?? s.price)}</td>
+      </tr>
+    `).join('');
   }
 
   private renderProducts(products: any[]): string {
-    if (!products || products.length === 0) {
-      return '<tr><td colspan="4" class="empty">No products</td></tr>';
+    if (!products?.length) {
+      return `<tr><td colspan="4" class="empty">No products</td></tr>`;
     }
 
-    return products.map((product: any, index: number) => {
-      const qty = product.qty ?? 1;
-      const price = this.formatCurrency(product.price ?? 0);
-      const total = this.formatCurrency(product.total ?? (product.price ?? 0) * qty);
-      return `<tr>\n        <td>${index + 1}. ${product.name || '-'}</td>\n        <td>${qty}</td>\n        <td>${price}</td>\n        <td>${total}</td>\n      </tr>`;
-    }).join('');
+    return products.map((p, i) => `
+      <tr>
+        <td>${i + 1}. ${p.name || '-'}</td>
+        <td>${p.qty ?? 1}</td>
+        <td>${this.formatCurrency(p.price)}</td>
+        <td>${this.formatCurrency(p.total ?? p.price)}</td>
+      </tr>
+    `).join('');
   }
 
-  private getInvoiceHtml(invoice: any, title = 'Invoice'): string {
-    const invoiceDate = this.formatDate(invoice.date || invoice.createdAt);
-    const serviceCount = (invoice.services || []).length;
-    const productCount = (invoice.products || []).length;
-    const totalItems = serviceCount + productCount;
-    const totalQuantity = (invoice.products || []).reduce((sum: number, item: any) => sum + (item.qty ?? 1), 0) + serviceCount;
-    const paymentModeText = invoice.paymentMode || 'Cash';
+  private getInvoiceHtml(invoice: any, logo: string): string {
 
-    const serviceTotalAmount = (invoice.services || []).reduce((sum: number, item: any) => sum + Number(item.total ?? item.price ?? 0), 0);
-    const productTotalAmount = (invoice.products || []).reduce((sum: number, item: any) => sum + Number(item.total ?? (item.price ?? 0) * (item.qty ?? 1)), 0);
-    const subTotalAmount = serviceTotalAmount + productTotalAmount;
-    const subTotal = this.formatCurrency(subTotalAmount);
-    const total = this.formatCurrency(invoice.total ?? subTotalAmount);
+    const total =
+      (invoice.services || []).reduce((s: number, i: any) => s + (i.total ?? i.price ?? 0), 0) +
+      (invoice.products || []).reduce((s: number, i: any) => s + (i.total ?? i.price ?? 0), 0);
 
-    return `<!DOCTYPE html>\n<html>\n<head>\n  <meta charset="utf-8" />\n  <title>${title}</title>\n  <style>\n    body { margin: 0; padding: 24px; font-family: Arial, sans-serif; color: #1a1a1a; }\n    .invoice-container { max-width: 900px; margin: 0 auto; }\n    .header { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; margin-bottom: 24px; }\n    .brand { display: flex; align-items: center; gap: 16px; }\n    .brand img { height: 60px; width: auto; object-fit: contain; }\n    .brand-info h1 { margin: 0; font-size: 22px; letter-spacing: 0.5px; }\n    .brand-info p { margin: 4px 0 0; font-size: 12px; line-height: 1.4; color: #4d4d4d; }\n    .meta { text-align: right; }\n    .meta h2 { margin: 0; font-size: 18px; }\n    .meta p { margin: 4px 0 0; font-size: 12px; color: #4d4d4d; }\n    .section { margin-bottom: 20px; }\n    .section-title { margin: 0 0 8px; font-size: 14px; text-transform: uppercase; color: #3b3b3b; letter-spacing: 0.05em; }\n    .box { border: 1px solid #ddd; border-radius: 10px; background: #fafafa; padding: 16px; }\n    table { width: 100%; border-collapse: collapse; margin-top: 12px; }\n    th, td { border: 1px solid #ddd; padding: 10px 12px; }\n    th { background: #f5f5f5; text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; }\n    td { font-size: 12px; }\n    .empty { text-align: center; color: #777; }\n    .totals { width: 100%; max-width: 400px; margin-left: auto; margin-top: 16px; }\n    .totals tr td { border: none; padding: 8px 12px; }\n    .totals tr td:first-child { color: #4d4d4d; }\n    .totals tr.total td { font-weight: 700; border-top: 1px solid #ddd; }\n    footer { margin-top: 36px; font-size: 11px; color: #6b6b6b; line-height: 1.5; }\n  </style>\n</head>\n<body>\n  <div class="invoice-container">\n    <div class="header">\n      <div class="brand">\n        <img src="${CLINIC_CONFIG.logo}" alt="${CLINIC_CONFIG.name}" />\n        <div class="brand-info">\n          <h1>${CLINIC_CONFIG.name}</h1>\n          <p>${CLINIC_CONFIG.subjectLine}</p>\n          <p>${CLINIC_CONFIG.address}</p>\n          <p>${CLINIC_CONFIG.phone}</p>\n        </div>\n      </div>\n      <div class="meta">\n        <h2>Invoice</h2>\n        <p><strong>Number:</strong> ${invoice.invoiceNumber || '-'}</p>\n        <p><strong>Date:</strong> ${invoiceDate}</p>\n        <p><strong>Patient:</strong> ${invoice.name || '-'}</p>\n        <p><strong>Mobile:</strong> ${invoice.mobile || '-'}</p>\n        <p><strong>Payment Mode:</strong> ${paymentModeText}</p>\n        <p><strong>Items:</strong> ${totalItems}</p>\n        <p><strong>Qty:</strong> ${totalQuantity}</p>\n      </div>\n    </div>\n\n    <div class="section">\n      <div class="section-title">Services</div>\n      <div class="box">\n        <table>\n          <thead>\n            <tr>\n              <th>Description</th>\n              <th>Qty</th>\n              <th>Unit</th>\n              <th>Discount</th>\n              <th>Total</th>\n            </tr>\n          </thead>\n          <tbody>\n            ${this.renderServices(invoice.services || [])}\n          </tbody>\n        </table>\n      </div>\n    </div>\n\n    <div class="section">\n      <div class="section-title">Products</div>\n      <div class="box">\n        <table>\n          <thead>\n            <tr>\n              <th>Description</th>\n              <th>Qty</th>\n              <th>Unit</th>\n              <th>Total</th>\n            </tr>\n          </thead>\n          <tbody>\n            ${this.renderProducts(invoice.products || [])}\n          </tbody>\n        </table>\n      </div>\n    </div>\n\n    <table class="totals">\n      <tr>\n        <td>Services Total</td>\n        <td>${this.formatCurrency(serviceTotalAmount)}</td>\n      </tr>\n      <tr>\n        <td>Products Total</td>\n        <td>${this.formatCurrency(productTotalAmount)}</td>\n      </tr>\n      <tr>\n        <td>Payment Mode</td>\n        <td>${paymentModeText}</td>\n      </tr>\n      <tr>\n        <td>Subtotal</td>\n        <td>${subTotal}</td>\n      </tr>\n      <tr class="total">\n        <td>Total</td>\n        <td>${total}</td>\n      </tr>\n    </table>\n\n    <footer>\n      ${CLINIC_CONFIG.name} • ${CLINIC_CONFIG.phone} • ${CLINIC_CONFIG.email}\n    </footer>\n  </div>\n</body>\n</html>`;
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<style>
+body { font-family: Arial; padding: 20px; color: #000; }
+.container { max-width: 900px; margin: auto; }
+.header { display: flex; justify-content: space-between; border-bottom: 2px solid #000; padding-bottom: 10px; }
+.logo { height: 60px; }
+.title { text-align: right; }
+.section { margin-top: 20px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { border: 1px solid #000; padding: 8px; }
+th { background: #f0f0f0; }
+.footer { margin-top: 40px; display: flex; justify-content: space-between; }
+.sign { text-align: center; }
+.small { font-size: 12px; }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <div class="header">
+    <div>
+      <img src="${logo}" class="logo"/>
+      <h2>${CLINIC_CONFIG.name}</h2>
+      <div class="small">${CLINIC_CONFIG.address}</div>
+      <div class="small">${CLINIC_CONFIG.phone}</div>
+
+      <!-- ✅ Specialists FIX -->
+      <div class="small">
+        <strong>Specialists:</strong><br/>
+        ${CLINIC_CONFIG.specialist1 || ''} ${CLINIC_CONFIG.specialist1Desg || ''}<br/>
+        ${CLINIC_CONFIG.specialist2 || ''} ${CLINIC_CONFIG.specialist2Desg || ''}
+      </div>
+    </div>
+
+    <div class="title">
+      <h2>INVOICE</h2>
+      <div>No: ${invoice.invoiceNumber || '-'}</div>
+      <div>Date: ${this.formatDate(invoice.createdAt)}</div>
+    </div>
+  </div>
+
+<div class="section">
+  <table style="border: none; width: 100%;">
+    <tr>
+      <td style="border: none; width: 50%;">
+        <strong>Patient:</strong> ${invoice.name || '-'}
+      </td>
+      <td style="border: none;">
+        <strong>Mobile:</strong> ${invoice.mobile || '-'}
+      </td>
+    </tr>
+
+    <tr>
+      <td style="border: none;">
+        <strong>Age:</strong> ${invoice.age ?? '-'}
+      </td>
+      <td style="border: none;">
+        <strong>Gender:</strong> ${invoice.gender || '-'}
+      </td>
+    </tr>
+
+    <tr>
+      <td style="border: none;">
+        <strong>Referred By:</strong> ${invoice.referredBy || '-'}
+      </td>
+      <td style="border: none;">
+        <strong>Problem:</strong> ${invoice.problem || '-'}
+      </td>
+    </tr>
+  </table>
+</div>
+  <div class="section">
+    <h3>Services</h3>
+    <table>
+      <tr>
+        <th>Name</th><th>Qty</th><th>Price</th><th>Disc</th><th>Total</th>
+      </tr>
+      ${this.renderServices(invoice.services)}
+    </table>
+  </div>
+
+  <div class="section">
+    <h3>Products</h3>
+    <table>
+      <tr>
+        <th>Name</th><th>Qty</th><th>Price</th><th>Total</th>
+      </tr>
+      ${this.renderProducts(invoice.products)}
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>Total: ${this.formatCurrency(total)}</h2>
+  </div>
+
+  <!-- ✅ Footer -->
+  <div class="footer">
+    <div class="sign">
+      ___________________<br/>
+      Patient Signature
+    </div>
+
+    <div class="sign">
+      <strong>${CLINIC_CONFIG.name}</strong><br/>
+      (Seal & Signature)
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
+`;
   }
 
-  private createHiddenContainer(html: string): HTMLElement {
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.top = '0';
-    container.style.left = '0';
-    container.style.width = '794px';
-    container.style.maxWidth = '100%';
-    container.style.background = '#fff';
-    container.style.boxSizing = 'border-box';
-    container.style.pointerEvents = 'none';
-    container.style.opacity = '0';
-    container.style.zIndex = '-1000';
-    container.innerHTML = html;
-    document.body.appendChild(container);
-    return container;
+  private createContainer(html: string): HTMLElement {
+    const div = document.createElement('div');
+    div.innerHTML = html;
+    div.style.position = 'fixed';
+    div.style.left = '-9999px';
+    document.body.appendChild(div);
+    return div;
   }
 
-  private async loadImages(container: HTMLElement): Promise<void> {
-    const images = Array.from(container.querySelectorAll('img')) as HTMLImageElement[];
-    await Promise.all(images.map(image => new Promise<void>(resolve => {
-      if (image.complete) {
-        resolve();
-        return;
-      }
-      image.onload = () => resolve();
-      image.onerror = () => resolve();
-    })));
+  private async waitImages(container: HTMLElement) {
+    const imgs = container.querySelectorAll('img');
+    await Promise.all(Array.from(imgs).map(img =>
+      img.complete ? Promise.resolve() :
+        new Promise(res => {
+          img.onload = res;
+          img.onerror = res;
+        })
+    ));
   }
 
-  previewInvoice(invoice: any, title = 'Invoice') {
-    const html = this.getInvoiceHtml(invoice, title);
-    const win = window.open('', '_blank', 'width=900,height=800');
+  // ✅ FIXED (supports 2 params)
+  async previewInvoice(invoice: any, title = 'Invoice') {
+    const logo = await this.getLogo();
+    const html = this.getInvoiceHtml(invoice, logo);
+
+    const win = window.open('', '_blank');
     if (!win) return;
 
     win.document.write(html);
     win.document.close();
-    win.focus();
   }
 
-  printInvoice(invoice: any, title = 'Invoice') {
-    const html = this.getInvoiceHtml(invoice, title);
-    const win = window.open('', '', 'width=900,height=800');
+  // ✅ FIXED (supports 2 params)
+  async printInvoice(invoice: any, title = 'Invoice') {
+    const logo = await this.getLogo();
+    const html = this.getInvoiceHtml(invoice, logo);
+
+    const win = window.open('');
     if (!win) return;
 
     win.document.write(html);
     win.document.close();
-    setTimeout(() => win.print(), 300);
+
+    setTimeout(() => win.print(), 500);
   }
 
+  // ✅ FIXED (supports filename)
   async downloadInvoice(invoice: any, fileName = 'Invoice.pdf') {
-    const html = this.getInvoiceHtml(invoice, fileName.replace(/\.pdf$/i, ''));
-    const container = this.createHiddenContainer(html);
+    const logo = await this.getLogo();
+    const html = this.getInvoiceHtml(invoice, logo);
 
-    try {
-      await this.loadImages(container);
-      const canvas = await html2canvas(container, { scale: 2, useCORS: true });
-      const imgData = canvas.toDataURL('image/png');
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const width = 190;
-      const ratio = canvas.width / canvas.height;
-      const height = width / ratio;
-      pdf.addImage(imgData, 'PNG', 10, 10, width, height);
-      pdf.save(fileName);
-    } finally {
-      container.remove();
-    }
+    const container = this.createContainer(html);
+
+    await this.waitImages(container);
+    await new Promise(r => setTimeout(r, 300));
+
+    const canvas = await html2canvas(container, {
+      scale: 2,
+      useCORS: true
+    });
+
+    const img = canvas.toDataURL('image/png');
+
+    const pdf = new jsPDF();
+    pdf.addImage(img, 'PNG', 10, 10, 190, 0);
+
+    pdf.save(fileName);
+
+    container.remove();
   }
 
   shareWhatsApp(invoice: any) {
-    if (!invoice) return;
-
-    const paymentModeText = invoice.paymentMode || 'Cash';
-
-    let msg = `🧾 *Clinic Invoice*\n\n`;
-    msg += `👤 ${invoice.name || ''}\n📱 ${invoice.mobile || ''}\n💳 ${paymentModeText}\n\n`;
-
-    (invoice.services || []).forEach((s: any, i: number) => {
-      msg += `${i + 1}. ${s.name || '-'} - ${this.formatCurrency(s.price)}\n`;
-    });
-
-    (invoice.products || []).forEach((p: any, i: number) => {
-      const index = (invoice.services || []).length + i + 1;
-      const qty = p.qty ?? 1;
-      const total = this.formatCurrency(p.total ?? (p.price ?? 0) * qty);
-      msg += `${index}. ${p.name || '-'} x${qty} - ${total}\n`;
-    });
-
-    msg += `\n💰 Total: ${this.formatCurrency(invoice.total)}`;
-    msg += `\n\n📎 Please attach PDF from download`;
-
-    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+    let msg = `🧾 Invoice\n${invoice.name}\n₹${invoice.total}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`);
   }
 }
