@@ -1,22 +1,24 @@
 <div class="page">
-  <div class="page-id">Inventory / Products</div>
+  <div class="page-top">
+    <div class="page-chip">Inventory / Products</div>
+    <button class="btn btn-primary" (click)="openDialog()">Add Product</button>
+  </div>
 
   <!-- HEADER -->
   <div class="header-bar">
 
-    <div class="stats">
-      <div class="card">
-        <div>Total Products</div>
-        <h2>{{ totalProducts }}</h2>
+    <div class="kpi-grid kpi-grid--2">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-title">Total Products</div>
+        <div class="kpi-value">{{ totalProducts }}</div>
       </div>
-
-      <div class="card warn">
-        <div>Low Stock</div>
-        <h2>{{ lowStock }}</h2>
+      <div class="kpi-card kpi-amber">
+        <div class="kpi-title">Low Stock</div>
+        <div class="kpi-value">{{ lowStock }}</div>
       </div>
     </div>
 
-    <button class="add-btn" (click)="openDialog()">Add Product</button>
+    <span></span>
 
   </div>
 

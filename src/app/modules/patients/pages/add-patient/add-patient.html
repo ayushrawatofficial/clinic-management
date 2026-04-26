@@ -3,41 +3,70 @@
 <div class="dialog">
 
   <div class="header">
-    <h3>Add Patient</h3>
+    <h3>{{ purchaseOnly ? 'Add Services / Products' : 'Add Patient' }}</h3>
     <span (click)="close()">✕</span>
   </div>
 
   <div class="body grid">
 
-    <!-- MOBILE -->
-    <div class="field">
-      <label>Mobile *</label>
-      <input type="tel" [(ngModel)]="mobile" (input)="onMobileInput($event)" (keypress)="onMobileKeyPress($event)" [class.error]="submitted && errors.mobile" maxlength="10" pattern="[0-9]{10}" />
+    <ng-container *ngIf="!purchaseOnly; else purchaseHeader">
+      <!-- MOBILE -->
+      <div class="field">
+        <label>Mobile *</label>
+        <input type="tel" [(ngModel)]="mobile" (input)="onMobileInput($event)" (keypress)="onMobileKeyPress($event)" [class.error]="submitted && errors.mobile" maxlength="10" pattern="[0-9]{10}" />
+        <div class="error-msg" *ngIf="submitted && errors.mobile">{{errors.mobile}}</div>
+      </div>
+
+      <!-- NAME -->
+      <div class="field">
+        <label>Name *</label>
+        <input type="text" [(ngModel)]="name" [class.error]="submitted && errors.name" />
+        <div class="error-msg" *ngIf="submitted && errors.name">{{errors.name}}</div>
+      </div>
+
+      <!-- AGE -->
+      <div class="field">
+        <label>Age *</label>
+        <input type="text" inputmode="numeric" maxlength="3" [(ngModel)]="age" (input)="onAgeInput($event)" (keypress)="onAgeKeyPress($event)" [class.error]="submitted && errors.age" />
+        <div class="error-msg" *ngIf="submitted && errors.age">{{errors.age}}</div>
+      </div>
+
+      <!-- GENDER -->
+      <div class="field">
+        <label>Gender</label>
+        <select [(ngModel)]="gender">
+          <option>Male</option>
+          <option>Female</option>
+        </select>
+      </div>
+    </ng-container>
+
+    <ng-template #purchaseHeader>
+      <div class="field full">
+        <label>Patient</label>
+        <input [value]="name + ' (' + mobile + ')'" readonly />
+      </div>
+      <div class="field">
+        <label>Age</label>
+        <input [value]="age ?? '-'" readonly />
+      </div>
+      <div class="field">
+        <label>Gender</label>
+        <input [value]="gender || '-'" readonly />
+      </div>
       <div class="error-msg" *ngIf="submitted && errors.mobile">{{errors.mobile}}</div>
-    </div>
-
-    <!-- NAME -->
-    <div class="field">
-      <label>Name *</label>
-      <input type="text" [(ngModel)]="name" [class.error]="submitted && errors.name" />
-      <div class="error-msg" *ngIf="submitted && errors.name">{{errors.name}}</div>
-    </div>
-
-    <!-- AGE -->
-    <div class="field">
-      <label>Age *</label>
-      <input type="text" inputmode="numeric" maxlength="3" [(ngModel)]="age" (input)="onAgeInput($event)" (keypress)="onAgeKeyPress($event)" [class.error]="submitted && errors.age" />
-      <div class="error-msg" *ngIf="submitted && errors.age">{{errors.age}}</div>
-    </div>
-
-    <!-- GENDER -->
-    <div class="field">
-      <label>Gender</label>
-      <select [(ngModel)]="gender">
-        <option>Male</option>
-        <option>Female</option>
-      </select>
-    </div>
+    </ng-template>
+    
+    <ng-container *ngIf="!purchaseOnly">
+      <div class="field full">
+        <label>Concerns</label>
+        <input type="text" [(ngModel)]="concerns" />
+      </div>
+      <div class="field full">
+        <label>Referred By</label>
+        <input type="text" [(ngModel)]="referredBy" />
+      </div>
+    </ng-container>
 
     <!-- SERVICES -->
     <div class="field half">

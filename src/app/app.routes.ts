@@ -61,6 +61,12 @@ export const routes: Routes = [
   loadComponent: () =>
     import('./modules/revenue/pages/revenue/revenue')
       .then(m => m.RevenueComponent)
+},
+{
+  path: 'whatsapp-broadcast',
+  loadComponent: () =>
+    import('./modules/whatsapp/pages/broadcast/broadcast')
+      .then(m => m.WhatsAppBroadcastComponent)
 }
     ]
   }

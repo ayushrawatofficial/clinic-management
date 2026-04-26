@@ -1,0 +1,76 @@
+<div class="page">
+  <div class="page-top">
+    <div class="page-chip">Communication / WhatsApp Broadcast</div>
+    <button class="btn btn-primary" type="button" (click)="openWhatsApp()">Open WhatsApp</button>
+  </div>
+
+  <div class="grid">
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>Compose</h3>
+          <div class="sub">Free, no-API: message is prefilled in WhatsApp.</div>
+        </div>
+        <button class="btn btn-secondary" type="button" (click)="copyMessage()">Copy Message</button>
+      </div>
+
+      <label class="label">Message</label>
+      <textarea [(ngModel)]="message" placeholder="Type your message..."></textarea>
+
+      <div class="row">
+        <div class="file">
+          <label class="label">Image (optional)</label>
+          <input type="file" accept="image/*" (change)="handleImageSelected($event)" />
+          <div class="hint">Selected: <b>{{ imageName || 'none' }}</b></div>
+        </div>
+      </div>
+
+      <div class="hint">
+        Tip: WhatsApp does not allow truly “send to all” without an API. This opens WhatsApp with your message. Attach the image manually.
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>Recipients</h3>
+          <div class="sub"><b>{{ selectedCount }}</b> selected</div>
+        </div>
+        <div class="actions">
+          <button class="btn btn-secondary" type="button" (click)="toggleSelectAll(true)">Select All</button>
+          <button class="btn btn-secondary" type="button" (click)="toggleSelectAll(false)">Clear</button>
+        </div>
+      </div>
+
+      <div class="set-row">
+        <select [(ngModel)]="selectedSetName" (change)="applySet()">
+          <option value="">Select saved broadcast set</option>
+          <option *ngFor="let s of savedSets" [value]="s.name">{{ s.name }}</option>
+        </select>
+        <button class="btn btn-secondary" type="button" (click)="saveAsNewSet()">Save New</button>
+        <button class="btn btn-secondary" type="button" (click)="updateSelectedSet()">Update</button>
+        <button class="btn btn-secondary" type="button" (click)="deleteSelectedSet()">Delete</button>
+      </div>
+
+      <div class="search">
+        <input [(ngModel)]="search" (input)="applyFilter()" placeholder="Search name / mobile / code..." />
+      </div>
+
+      <div class="list" (scroll)="onPatientsScroll($event)">
+        <div class="item" *ngFor="let p of visiblePatients">
+          <label>
+            <input
+              type="checkbox"
+              [checked]="selectedPatientIds.has(p.id)"
+              (change)="togglePatientSelection(p.id, $any($event.target).checked)"
+            />
+            <span class="name">{{ p.name }}</span>
+            <span class="meta">{{ p.mobile || 'No mobile' }}</span>
+          </label>
+        </div>
+        <div class="empty" *ngIf="visiblePatients.length === 0">No patients found.</div>
+      </div>
+    </div>
+  </div>
+</div>
+

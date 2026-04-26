@@ -208,13 +208,34 @@ select.error {
 }
 
 .footer button {
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 16px;
+  border-radius: 10px;
   border: none;
   cursor: pointer;
+  font-weight: 650;
+  letter-spacing: 0.2px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
 .footer button:last-child {
-  background: #6366f1;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
+}
+
+.footer button:first-child {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.footer button:hover {
+  transform: translateY(-1px);
+}
+
+.footer button:last-child:hover {
+  filter: brightness(1.04);
+  box-shadow: 0 8px 18px rgba(37, 99, 235, 0.25);
+}
+
+.footer button:first-child:hover {
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
 }

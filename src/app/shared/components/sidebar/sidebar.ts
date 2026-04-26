@@ -19,6 +19,7 @@ export class SidebarComponent {
     { name: 'Services', icon: '🧾', route: '/services' },
     { name: 'Products', icon: '💊', route: '/products' },
     { name: 'Revenue', icon: '📈', route: '/revenue' },
+    { name: 'WhatsApp', icon: '💬', route: '/whatsapp-broadcast' },
     // { name: 'Expenses', icon: '💰', route: '/expenses' },
     // { name: 'Users', icon: '👥', route: '/admin' }
   ];

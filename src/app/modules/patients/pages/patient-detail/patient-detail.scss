@@ -2,18 +2,21 @@
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 100%;
-  overflow: hidden; 
+  height: 80vh;
+  overflow: hidden;
+  background: #f8fafc;
+  min-height: 0;
 }
 
 
 /* CARD */
 .card {
   background: #fff;
-  border-radius: 14px;
-  padding: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+  border-radius: 16px;
+  padding: 18px 20px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 16px 45px rgba(15, 23, 42, 0.06);
 }
 
 .top {
@@ -28,7 +31,7 @@
 }
 
 .badge {
-  background: #22c55e;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
   color: white;
   padding: 4px 10px;
   border-radius: 20px;
@@ -49,7 +52,7 @@
 .tab-bar {
   display: flex;
   gap: 10px;
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 .tab-bar button {
@@ -63,9 +66,14 @@
 }
 
 .tab-bar button.active {
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
   color: white;
   border-color: #2563eb;
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
 }
 
 .broadcast-grid {
@@ -173,14 +181,15 @@
 
 /* TABLE */
 .table {
-  border: 1px solid #eee;
+  width: 100%;
+  border: 1px solid rgba(148, 163, 184, 0.35);
   background: white;
-  border-radius: 10px;
+  border-radius: 14px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-
-  height: calc(100vh - 260px); /* adjust if needed */
+  flex: 1;
+  min-height: 0;
 }
 
 .header {
@@ -198,6 +207,7 @@
 .row {
   display: grid;
   grid-template-columns: 2fr 2fr 2fr 1.5fr 1.5fr 1fr 2fr;
+  width: 100%;
 }
 
 .row > div {
@@ -216,8 +226,28 @@
 }
 
 .actions span {
-  margin-right: 10px;
+  margin-right: 8px;
   cursor: pointer;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+
+.actions span:hover {
+  background: #e2e8f0;
+}
+
+@media (max-width: 900px) {
+  .top-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .services-cell {

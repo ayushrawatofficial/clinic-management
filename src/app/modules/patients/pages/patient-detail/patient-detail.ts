@@ -1,18 +1,18 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 import { PatientService } from '../../../../core/services/patient';
 import { InvoiceService } from '../../../../core/services/invoice';
 import { LoaderService } from '../../../../shared/services/loader';
 import { InvoicePrintService } from '../../../../shared/services/invoice-print.service';
-import { CLINIC_CONFIG } from '../../../../core/config/clinic.config';
+import { AddPatientComponent } from '../add-patient/add-patient';
 
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, AddPatientComponent],
   templateUrl: './patient-detail.html',
   styleUrls: ['./patient-detail.scss']
 })
@@ -22,15 +22,9 @@ export class PatientDetailComponent implements OnInit {
   patient: any = null;
   invoices: any[] = [];
   visibleInvoices: any[] = [];
-  patients: any[] = [];
-  visiblePatients: any[] = [];
-  selectedPatientIds = new Set<string>();
-  broadcastMessage = `Hello from ${CLINIC_CONFIG.name}.\nPlease note: attach the invoice manually in WhatsApp if needed.`;
-  broadcastImageName = '';
-  activeTab: 'invoices' | 'whatsapp' = 'invoices';
   readonly pageSize = 100;
   invoiceDisplayedCount = 100;
-  patientDisplayedCount = 100;
+  showPurchaseDialog = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -46,7 +40,6 @@ export class PatientDetailComponent implements OnInit {
 
     this.loadPatient();
     this.loadInvoices();
-    this.loadPatients();
   }
 
   loadPatient() {
@@ -68,20 +61,6 @@ export class PatientDetailComponent implements OnInit {
     });
   }
 
-  loadPatients() {
-    this.loader.show();
-    this.patientService.getPatients().subscribe((data: any[]) => {
-      this.patients = (data || []).map(patient => ({
-        ...patient,
-        mobile: patient.mobile || ''
-      })).sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
-      this.selectedPatientIds = new Set(this.patients.filter(p => p.mobile).map(p => p.id));
-      this.resetVisiblePatients();
-      this.loader.hide();
-      this.cdr.detectChanges();
-    });
-  }
-
   onInvoiceTableScroll(event: Event) {
     const element = event.target as HTMLElement;
     const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 100;
@@ -90,13 +69,7 @@ export class PatientDetailComponent implements OnInit {
     }
   }
 
-  onPatientsListScroll(event: Event) {
-    const element = event.target as HTMLElement;
-    const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 100;
-    if (nearBottom) {
-      this.loadMorePatients();
-    }
-  }
+  // WhatsApp broadcast moved to dedicated page
 
   loadMoreInvoices() {
     if (this.invoiceDisplayedCount >= this.invoices.length) return;
@@ -104,20 +77,9 @@ export class PatientDetailComponent implements OnInit {
     this.visibleInvoices = this.invoices.slice(0, this.invoiceDisplayedCount);
   }
 
-  loadMorePatients() {
-    if (this.patientDisplayedCount >= this.patients.length) return;
-    this.patientDisplayedCount = Math.min(this.patientDisplayedCount + this.pageSize, this.patients.length);
-    this.visiblePatients = this.patients.slice(0, this.patientDisplayedCount);
-  }
-
   private resetVisibleInvoices() {
     this.invoiceDisplayedCount = Math.min(this.pageSize, this.invoices.length);
     this.visibleInvoices = this.invoices.slice(0, this.invoiceDisplayedCount);
-  }
-
-  private resetVisiblePatients() {
-    this.patientDisplayedCount = Math.min(this.pageSize, this.patients.length);
-    this.visiblePatients = this.patients.slice(0, this.patientDisplayedCount);
   }
 
   private getLatestDateMs(record: any): number {
@@ -126,56 +88,7 @@ export class PatientDetailComponent implements OnInit {
     return Math.max(createdAtMs || 0, dateMs || 0);
   }
 
-  togglePatientSelection(patientId: string, selected: boolean) {
-    if (selected) {
-      this.selectedPatientIds.add(patientId);
-    } else {
-      this.selectedPatientIds.delete(patientId);
-    }
-  }
-
-  toggleSelectAll(select: boolean) {
-    if (select) {
-      this.selectedPatientIds = new Set(this.patients.filter(p => p.mobile).map(p => p.id));
-    } else {
-      this.selectedPatientIds.clear();
-    }
-  }
-
-  handleBroadcastImageSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    this.broadcastImageName = file ? file.name : '';
-  }
-
-  async copyBroadcastMessage() {
-    try {
-      await navigator.clipboard.writeText(this.broadcastMessage || '');
-      alert('Message copied to clipboard. Paste it in WhatsApp.');
-    } catch {
-      alert('Please copy the message manually.');
-    }
-  }
-
-  openWhatsAppBroadcast() {
-    const selectedPatients = this.patients.filter(p => this.selectedPatientIds.has(p.id) && p.mobile);
-    if (!selectedPatients.length) {
-      alert('Select at least one patient with a valid mobile number.');
-      return;
-    }
-
-    const numbers = selectedPatients.map(p => p.mobile.replace(/\D/g, '')).filter(Boolean);
-    const message = this.broadcastMessage.trim() || `Hello from ${CLINIC_CONFIG.name}.`;
-    const url = numbers.length === 1
-      ? `https://wa.me/${numbers[0]}?text=${encodeURIComponent(message)}`
-      : `https://wa.me/?text=${encodeURIComponent(message)}`;
-
-    window.open(url, '_blank');
-  }
-
-  get selectedPatientsCount() {
-    return this.selectedPatientIds.size;
-  }
+  // WhatsApp broadcast moved to dedicated page
 
   // 🔥 SELECT INVOICE
   // 🔥 SELECT INVOICE THEN PRINT
@@ -195,6 +108,15 @@ export class PatientDetailComponent implements OnInit {
   // 📱 WHATSAPP
   handleWhatsapp(inv: any) {
     this.invoicePrint.shareWhatsApp(inv);
+  }
+
+  openPurchaseDialog() {
+    this.showPurchaseDialog = true;
+  }
+
+  closePurchaseDialog() {
+    this.showPurchaseDialog = false;
+    this.loadInvoices();
   }
 
   // 🔥 GET SERVICES LIST FOR DISPLAY

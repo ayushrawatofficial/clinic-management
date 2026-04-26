@@ -3,7 +3,10 @@ import {
   EventEmitter,
   Output,
   OnInit,
-  HostListener
+  HostListener,
+  Input,
+  OnChanges,
+  SimpleChanges
 } from '@angular/core';
 
 import { CommonModule } from '@angular/common';
@@ -26,9 +29,11 @@ import { LoaderComponent } from '../../../../shared/components/loader/loader';
   templateUrl: './add-patient.html',
   styleUrls: ['./add-patient.scss']
 })
-export class AddPatientComponent implements OnInit {
+export class AddPatientComponent implements OnInit, OnChanges {
 
   @Output() onClose = new EventEmitter();
+  @Input() prefilledPatient: any = null;
+  @Input() purchaseOnly = false;
 
   // ================= PATIENT =================
   mobile = '';
@@ -82,6 +87,12 @@ export class AddPatientComponent implements OnInit {
     private toast: ToastService
   ) {}
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['prefilledPatient'] || changes['purchaseOnly']) {
+      this.applyPrefilledPatient();
+    }
+  }
+
   ngOnInit() {
     this.patientService.getPatients().subscribe(d => this.patients = d || []);
     this.serviceService.getServices().subscribe(d => {
@@ -92,6 +103,19 @@ export class AddPatientComponent implements OnInit {
       this.products = d || [];
       this.filteredProducts = d || [];
     });
+    this.applyPrefilledPatient();
+  }
+
+  private applyPrefilledPatient() {
+    if (!this.purchaseOnly || !this.prefilledPatient) return;
+
+    this.existingPatient = this.prefilledPatient;
+    this.mobile = this.prefilledPatient.mobile || '';
+    this.name = this.prefilledPatient.name || '';
+    this.age = this.prefilledPatient.age ?? null;
+    this.gender = this.prefilledPatient.gender || 'Male';
+    this.concerns = this.prefilledPatient.concerns || '';
+    this.referredBy = this.prefilledPatient.referredBy || '';
   }
 
   // ================= INPUT HANDLING =================
@@ -173,18 +197,22 @@ export class AddPatientComponent implements OnInit {
     this.name = (this.name || '').trim();
     this.age = this.age === null || this.age === undefined ? null : Number(this.age);
 
-    if (!this.mobile || this.mobile.length !== 10) {
-      this.errors.mobile = 'Enter valid 10 digit mobile';
-    }
+    if (!this.purchaseOnly) {
+      if (!this.mobile || this.mobile.length !== 10) {
+        this.errors.mobile = 'Enter valid 10 digit mobile';
+      }
 
-    if (!this.name) {
-      this.errors.name = 'Name required';
-    }
+      if (!this.name) {
+        this.errors.name = 'Name required';
+      }
 
-    if (!this.age) {
-      this.errors.age = 'Age required';
-    } else if (this.age < 1 || this.age > 120) {
-      this.errors.age = 'Age must be between 1-120';
+      if (!this.age) {
+        this.errors.age = 'Age required';
+      } else if (this.age < 1 || this.age > 120) {
+        this.errors.age = 'Age must be between 1-120';
+      }
+    } else if (!this.existingPatient?.id) {
+      this.errors.mobile = 'Patient data missing. Please reopen from details page.';
     }
 
     // Payment mode required if services or products selected

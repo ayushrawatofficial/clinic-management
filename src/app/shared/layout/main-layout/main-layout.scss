@@ -18,8 +18,17 @@ html, body {
 
 .content {
   flex: 1;
-  overflow: hidden; 
+  overflow: hidden;
   display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.content > * {
+  width: 100%;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
 }
 
 app-loader,

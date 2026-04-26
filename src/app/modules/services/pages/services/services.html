@@ -1,14 +1,19 @@
 <div class="page">
-  <div class="page-id">Catalog / Services</div>
+  <div class="page-top">
+    <div class="page-chip">Catalog / Services</div>
+    <button class="btn btn-primary" (click)="openDialog()">Add Service</button>
+  </div>
 
   <!-- HEADER -->
   <div class="header-bar">
-    <div class="stats-card">
-      <div>Total Services</div>
-      <h2>{{ totalServices }}</h2>
+    <div class="kpi-grid kpi-grid--1">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-title">Total Services</div>
+        <div class="kpi-value">{{ totalServices }}</div>
+      </div>
     </div>
 
-    <button class="add-btn" (click)="openDialog()">Add Service</button>
+    <span></span>
   </div>
 
   <!-- BULK BAR -->

@@ -1,30 +1,28 @@
 <div class="page">
-  <div class="page-id">Patient Management / List</div>
+  <div class="page-top">
+    <div class="page-chip">Patient Management / List</div>
+    <button class="btn btn-primary" (click)="openDialog(); $event.stopPropagation()">Add Patient</button>
+  </div>
 
   <!-- HEADER -->
   <div class="header-bar">
 
-    <div class="stats">
-      <div class="card">
-        <div>Total Patients</div>
-        <h2>{{ totalPatients }}</h2>
+    <div class="kpi-grid kpi-grid--3">
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-title">Total Patients</div>
+        <div class="kpi-value">{{ totalPatients }}</div>
       </div>
-
-            <div class="card-month">
-        <div>This Month</div>
-        <h2>{{ patientsThisMonth }}</h2>
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-title">This Month</div>
+        <div class="kpi-value">{{ patientsThisMonth }}</div>
       </div>
-
-      <div class="card-today">
-        <div>Today Visited</div>
-        <h2>{{ patientsToday }}</h2>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-title">Today Visited</div>
+        <div class="kpi-value">{{ patientsToday }}</div>
       </div>
-
     </div>
 
-    <button class="add-btn" (click)="openDialog(); $event.stopPropagation()">
-  Add Patient
-</button>
+    <span></span>
   </div>
 
   <!-- SEARCH -->
