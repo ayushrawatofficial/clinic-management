@@ -8,8 +8,10 @@
     </div>
 
     <img
-  [src]="collapsed ? 'assets/logo-small.png' : config.clinic.logo"
+  [src]="config.clinic.logo"
   class="logo"
+  [class.collapsed]="collapsed"
+  alt="Clinic Logo"
 />
     <span class="title">{{ config.clinic.name }}</span>
   </div>

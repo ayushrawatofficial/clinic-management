@@ -1,10 +1,135 @@
-<div class="login">
-  <div class="card">
-    <h2>Clinic Login</h2>
+<div class="login-page">
+  <!-- Background waves -->
+  <div class="bg-layer"></div>
+  <div class="orb orb-1"></div>
+  <div class="orb orb-2"></div>
 
-    <input [(ngModel)]="email" placeholder="Email" />
-    <input [(ngModel)]="password" type="password" placeholder="Password" />
+  <!-- Left branding panel -->
+  <div class="left-panel">
+    <div class="brand-row">
+      <div class="logo-icon">
+        <img [src]="config.logo" alt="Clinic Logo" onerror="this.style.display='none'" />
+        @if (!config.logo) {
+          <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+            <path d="M10 14 C10 10.686 12.686 8 16 8 C19.314 8 22 10.686 22 14 C22 17.314 19.314 20 16 20"
+                  stroke="#90caf9" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+            <path d="M6 14 C6 8.477 10.477 4 16 4 C21.523 4 26 8.477 26 14"
+                  stroke="#4fc3f7" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+            <circle cx="16" cy="14" r="2" fill="#4fc3f7"/>
+            <path d="M16 20 L16 23 C16 24.657 14.657 26 13 26 C11.343 26 10 24.657 10 23"
+                  stroke="#90caf9" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+          </svg>
+        }
+      </div>
+      <div class="brand-text">
+        <h3 class="clinic-name">{{ config.name }}</h3>
+        <p class="clinic-tagline">Est. Jodhpur, Rajasthan</p>
+      </div>
+    </div>
 
-    <button (click)="login()">Login</button>
+    <!-- Animated EQ bars -->
+    <div class="eq-bars">
+      @for (b of eqBars; track b) {
+        <span class="eq-bar"></span>
+      }
+    </div>
+
+    <div class="hero-text">
+      <h1>Caring for your<br /><span>voice &amp; hearing.</span></h1>
+      <p>Advanced audiological and speech therapy services delivered with compassion and clinical excellence.</p>
+    </div>
+
+    <!-- Service pills from config -->
+    <div class="services">
+      @for (s of services; track s) {
+        <span class="pill">{{ s }}</span>
+      }
+    </div>
+
+    <!-- Specialists -->
+    <p class="section-label">Our Specialists</p>
+    <div class="specialists">
+      <div class="specialist-card">
+        <div class="avatar">{{ initials(config.specialist1) }}</div>
+        <div>
+          <p class="spec-name">{{ config.specialist1 }}</p>
+          <p class="spec-desg">{{ config.specialist1Desg }}</p>
+        </div>
+      </div>
+      <div class="specialist-card">
+        <div class="avatar">{{ initials(config.specialist2) }}</div>
+        <div>
+          <p class="spec-name">{{ config.specialist2 }}</p>
+          <p class="spec-desg">{{ config.specialist2Desg }}</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="bottom-meta">
+      <span class="meta-chip">📍 {{ config.address }}</span>
+      <span class="meta-chip">📞 {{ config.phone }}</span>
+    </div>
+  </div>
+
+  <!-- Right form panel -->
+  <div class="right-panel">
+    <div class="form-card">
+      <p class="form-eyebrow">Clinic Portal</p>
+      <h2 class="form-title">Welcome back</h2>
+      <p class="form-subtitle">Sign in to access patient records &amp; appointments</p>
+
+      <div class="field">
+        <label>Email Address</label>
+        <div class="input-wrap">
+          <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <path d="M2 4l6 5 6-5M2 4h12v8H2V4z" stroke="#90caf9" stroke-width="1.2"
+                  stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          </svg>
+          <input [(ngModel)]="email" type="email" placeholder="your@email.com" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Password</label>
+        <div class="input-wrap">
+          <svg class="input-icon" width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="3" y="7" width="10" height="7" rx="1.5" stroke="#90caf9" stroke-width="1.2" fill="none"/>
+            <path d="M5 7V5a3 3 0 016 0v2" stroke="#90caf9" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+            <circle cx="8" cy="10.5" r="1" fill="#90caf9"/>
+          </svg>
+          <input [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'" placeholder="••••••••" />
+          <button class="toggle-pw" (click)="showPassword = !showPassword" type="button">
+            {{ showPassword ? '🙈' : '👁' }}
+          </button>
+        </div>
+      </div>
+
+      <div class="options-row">
+        <label class="remember-label">
+          <input type="checkbox" [(ngModel)]="rememberMe" />
+          <span>Remember me</span>
+        </label>
+        <a class="forgot-link" (click)="forgotPassword()">Forgot password?</a>
+      </div>
+
+      <button class="btn-login" (click)="login()" [disabled]="loading">
+        @if (!loading) {
+          <span>Sign In</span>
+        } @else {
+          <span class="spinner"></span>
+        }
+      </button>
+
+      <div class="contact-strip">
+        <svg width="14" height="14" viewBox="0 0 16 16" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="#4fc3f7" stroke-width="1.2" fill="none"/>
+          <path d="M8 7v4M8 5v.5" stroke="#4fc3f7" stroke-width="1.2" stroke-linecap="round"/>
+        </svg>
+        <div class="contact-info">
+          <strong>Need access? Contact admin</strong>
+          {{ config.email }} &nbsp;·&nbsp; {{ config.phone }}
+        </div>
+      </div>
+    </div>
   </div>
 </div>

@@ -1,7 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 
 import { PatientService } from '../../../../core/services/patient';
 import { InvoiceService } from '../../../../core/services/invoice';
@@ -12,7 +12,7 @@ import { AddPatientComponent } from '../add-patient/add-patient';
 @Component({
   selector: 'app-patient-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, AddPatientComponent],
+  imports: [CommonModule, FormsModule, AddPatientComponent],
   templateUrl: './patient-detail.html',
   styleUrls: ['./patient-detail.scss']
 })

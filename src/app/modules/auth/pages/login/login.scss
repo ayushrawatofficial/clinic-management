@@ -1,29 +1,676 @@
-.login {
-  display: flex;
+// ================================================================
+//  Speech & Hearing Clinic — Login Page Styles
+//  Structure:
+//    1. Google Fonts Import
+//    2. Design Tokens  (typography, color, spacing, motion)
+//    3. Mixins & Placeholders
+//    4. Page Shell
+//    5. Background Effects  (bg-layer, orbs)
+//    6. Left Panel — Branding
+//       6a. Brand Row (logo + name)
+//       6b. EQ Bars
+//       6c. Hero Text
+//       6d. Service Pills
+//       6e. Specialists
+//       6f. Bottom Meta
+//    7. Right Panel — Login Form
+//       7a. Form Header
+//       7b. Fields & Inputs
+//       7c. Options Row (remember / forgot)
+//       7d. Submit Button
+//       7e. Contact Strip
+//    8. Keyframe Animations
+// ================================================================
+
+
+// ── 1. Google Fonts ─────────────────────────────────────────────
+
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap');
+
+
+// ── 2. Design Tokens ────────────────────────────────────────────
+
+// Typography
+$font-display : 'Playfair Display', serif;
+$font-body    : 'DM Sans', sans-serif;
+
+// Color — base palette
+$color-navy-darkest : #080f1e;
+$color-navy-dark    : #0b1120;
+$color-navy-orb-1   : #0e3a6e;
+$color-navy-orb-2   : #0b2d55;
+$color-navy-glow-1  : #0e2240;
+$color-navy-glow-2  : #0d1e38;
+
+// Color — accent & interactive
+$color-accent       : #4fc3f7;
+$color-btn-from     : #1565c0;
+$color-btn-to       : #0d47a1;
+$color-btn-shadow   : rgba(13, 71, 161, 0.40);
+$color-btn-shadow-h : rgba(13, 71, 161, 0.55);   // hover state
+
+// Color — text
+$color-text-primary : #ddeeff;
+$color-text-heading : #e8f2ff;
+$color-text-brand   : #e8f0fe;
+$color-text-muted   : rgba(180, 200, 240, 0.60);
+$color-text-ghost   : rgba(160, 195, 240, 0.50);
+$color-text-faint   : rgba(150, 185, 235, 0.45);
+$color-text-link    : $color-accent;
+
+// Color — surfaces & borders
+$color-surface-card   : rgba(255, 255, 255, 0.015);
+$color-surface-subtle : rgba(255, 255, 255, 0.03);
+$color-surface-input  : rgba(255, 255, 255, 0.04);
+$color-surface-info   : rgba(255, 255, 255, 0.02);
+
+$color-border-soft    : rgba(100, 160, 255, 0.12);
+$color-border-faint   : rgba(255, 255, 255, 0.05);
+$color-border-accent  : rgba(100, 160, 255, 0.10);
+$color-border-info    : rgba(100, 160, 255, 0.08);
+
+// Color — avatar / logo
+$color-avatar-text    : #90caf9;
+$color-spec-name      : #c8daf5;
+
+// Spacing scale  (4px base unit)
+$space-1  :  4px;
+$space-2  :  8px;
+$space-3  : 12px;
+$space-4  : 16px;
+$space-5  : 20px;
+$space-6  : 24px;
+$space-7  : 28px;
+$space-8  : 32px;
+$space-10 : 40px;
+$space-12 : 48px;
+$space-15 : 60px;
+$space-18 : 72px;
+
+// Border radius scale
+$radius-sm   :  8px;
+$radius-md   : 10px;
+$radius-lg   : 12px;
+$radius-xl   : 14px;
+$radius-full : 100px;
+
+// Motion
+$duration-fast   : 0.15s;
+$duration-base   : 0.20s;
+$duration-slow   : 0.80s;
+$easing-standard : ease;
+$easing-out      : ease-out;
+
+
+// ── 3. Mixins & Placeholders ─────────────────────────────────────
+
+// Flex helpers
+@mixin flex-center  { display: flex; align-items: center; justify-content: center; }
+@mixin flex-between { display: flex; align-items: center; justify-content: space-between; }
+@mixin flex-col     { display: flex; flex-direction: column; }
+
+// Absolute full-cover positioning
+@mixin cover-absolute { position: absolute; inset: 0; }
+
+// Uppercase label style  (used in multiple places)
+@mixin label-caps($size: 11px, $color: $color-text-ghost) {
+  font-size       : $size;
+  font-weight     : 500;
+  text-transform  : uppercase;
+  letter-spacing  : 0.10em;
+  color           : $color;
+}
+
+// Gradient background for buttons / avatars
+@mixin btn-gradient {
+  background: linear-gradient(135deg, $color-btn-from 0%, $color-btn-to 100%);
+}
+
+// Glass surface shared by cards
+%glass-surface {
+  background    : $color-surface-subtle;
+  border        : 0.5px solid $color-border-accent;
+  border-radius : $radius-lg;
+}
+
+
+// ── 4. Page Shell ────────────────────────────────────────────────
+
+.login-page {
+  position   : relative;
+  display    : flex;
+  align-items: stretch;
+  min-height : 100vh;
+  background : $color-navy-dark;
+  font-family: $font-body;
+  overflow   : hidden;
+}
+
+
+// ── 5. Background Effects ────────────────────────────────────────
+
+.bg-layer {
+  position  : fixed;
+  inset     : 0;
+  z-index   : 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 50%, $color-navy-glow-1 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 30%, $color-navy-glow-2 0%, transparent 60%),
+    $color-navy-darkest;
+}
+
+// Soft glowing orbs
+.orb {
+  position     : fixed;
+  border-radius: 50%;
+  filter       : blur(90px);
+  z-index      : 0;
+  animation    : orb-float 12s ease-in-out infinite;
+
+  &.orb-1 {
+    width      : 380px;
+    height     : 380px;
+    top        : -100px;
+    right      : -80px;
+    background : $color-navy-orb-1;
+    opacity    : 0.50;
+  }
+
+  &.orb-2 {
+    width           : 280px;
+    height          : 280px;
+    bottom          : -80px;
+    left            : -60px;
+    background      : $color-navy-orb-2;
+    opacity         : 0.40;
+    animation-delay : -5s;
+  }
+}
+
+
+// ── 6. Left Panel — Branding ─────────────────────────────────────
+
+.left-panel {
+  position       : relative;
+  z-index        : 10;
+  flex           : 1;
+  @include flex-col;
   justify-content: center;
+  padding        : $space-15 $space-18;
+  animation      : slide-left $duration-slow $easing-standard both;
+
+  @media (max-width: 860px) {
+    display: none;
+  }
+}
+
+
+// 6a. Brand Row ──────────────────────────────────────────────────
+
+.brand-row {
+  display      : flex;
+  align-items  : center;
+  gap          : 14px;
+  margin-bottom: $space-12;
+}
+
+.logo-icon {
+  position     : relative;
+  flex-shrink  : 0;
+  width        : 52px;
+  height       : 52px;
+  border-radius: $radius-xl;
+  @include flex-center;
+  @include btn-gradient;
+  box-shadow   : 0 0 0 1px rgba(100, 160, 255, 0.15);
+
+  img {
+    width      : 36px;
+    height     : 36px;
+    object-fit : contain;
+  }
+
+  // Animated pulse ring
+  &::after {
+    content      : '';
+    position     : absolute;
+    inset        : -6px;
+    border-radius: 20px;
+    border       : 1px solid rgba($color-accent, 0.20);
+    animation    : pulse-ring 2.5s $easing-out infinite;
+  }
+}
+
+.clinic-name {
+  font-family : $font-display;
+  font-size   : 17px;
+  font-weight : 600;
+  color       : $color-text-brand;
+  line-height : 1.3;
+}
+
+.clinic-tagline {
+  margin-top    : 2px;
+  font-size     : 11px;
+  font-weight   : 300;
+  color         : rgba(180, 200, 240, 0.45);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+
+// 6b. EQ Bars ────────────────────────────────────────────────────
+
+.eq-bars {
+  display      : flex;
+  align-items  : flex-end;
+  gap          : 3px;
+  height       : 28px;
+  margin-bottom: $space-8;
+  opacity      : 0.22;
+}
+
+.eq-bar {
+  width        : 3px;
+  border-radius: 2px;
+  background   : $color-accent;
+  animation    : eq-bounce 1.2s ease-in-out infinite alternate;
+
+  // Each bar gets a distinct height + staggered delay
+  // to simulate a live audio visualiser
+  &:nth-child(1) { height: 45%; animation-delay: 0.00s; }
+  &:nth-child(2) { height: 80%; animation-delay: 0.08s; }
+  &:nth-child(3) { height: 55%; animation-delay: 0.16s; }
+  &:nth-child(4) { height: 95%; animation-delay: 0.24s; }
+  &:nth-child(5) { height: 65%; animation-delay: 0.32s; }
+  &:nth-child(6) { height: 88%; animation-delay: 0.40s; }
+  &:nth-child(7) { height: 40%; animation-delay: 0.48s; }
+  &:nth-child(8) { height: 72%; animation-delay: 0.56s; }
+  &:nth-child(9) { height: 58%; animation-delay: 0.64s; }
+}
+
+
+// 6c. Hero Text ──────────────────────────────────────────────────
+
+.hero-text {
+  margin-bottom: $space-8;
+
+  h1 {
+    font-family   : $font-display;
+    font-size     : 44px;
+    font-weight   : 600;
+    color         : $color-text-heading;
+    line-height   : 1.2;
+    letter-spacing: -0.01em;
+
+    span { color: $color-accent; }
+  }
+
+  p {
+    margin-top : 14px;
+    font-size  : 14px;
+    font-weight: 300;
+    color      : $color-text-muted;
+    line-height: 1.7;
+    max-width  : 360px;
+  }
+}
+
+
+// 6d. Service Pills ──────────────────────────────────────────────
+
+.services {
+  display      : flex;
+  flex-wrap    : wrap;
+  gap          : $space-2;
+  margin-bottom: $space-10;
+}
+
+.pill {
+  padding      : 5px $space-3;
+  background   : rgba(255, 255, 255, 0.04);
+  border       : 0.5px solid $color-border-soft;
+  border-radius: $radius-full;
+  font-size    : 11.5px;
+  font-weight  : 400;
+  color        : rgba(180, 210, 255, 0.65);
+  letter-spacing: 0.02em;
+}
+
+
+// 6e. Specialists ────────────────────────────────────────────────
+
+.section-label {
+  margin-bottom: $space-3;
+  @include label-caps(10px, rgba(130, 160, 210, 0.50));
+  letter-spacing: 0.12em;
+}
+
+.specialists {
+  display  : flex;
+  flex-wrap: wrap;
+  gap      : 14px;
+}
+
+.specialist-card {
+  @extend %glass-surface;
+  display    : flex;
   align-items: center;
-  height: 100vh;
-  background: #f1f5f9;
+  gap        : 10px;
+  padding    : 10px 14px;
 }
 
-.card {
-  background: white;
-  padding: 30px;
-  border-radius: 10px;
-  width: 300px;
-  box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+.avatar {
+  flex-shrink  : 0;
+  width        : 34px;
+  height       : 34px;
+  border-radius: 50%;
+  @include flex-center;
+  @include btn-gradient;
+  font-size  : 12px;
+  font-weight: 500;
+  color      : $color-avatar-text;
 }
 
-input {
+.spec-name {
+  font-size  : 12px;
+  font-weight: 500;
+  color      : $color-spec-name;
+}
+
+.spec-desg {
+  margin-top : 1px;
+  font-size  : 10.5px;
+  font-weight: 300;
+  color      : rgba(150, 185, 235, 0.50);
+  max-width  : 170px;
+}
+
+
+// 6f. Bottom Meta ────────────────────────────────────────────────
+
+.bottom-meta {
+  @include flex-col;
+  gap       : $space-1 + 2;
+  margin-top: $space-10;
+}
+
+.meta-chip {
+  font-size  : 11.5px;
+  font-weight: 300;
+  color      : $color-text-faint;
+}
+
+
+// ── 7. Right Panel — Login Form ──────────────────────────────────
+
+.right-panel {
+  position       : relative;
+  z-index        : 10;
+  flex-shrink    : 0;
+  width          : 420px;
+  @include flex-center;
+  padding        : $space-12 $space-10;
+  border-left    : 0.5px solid $color-border-faint;
+  background     : $color-surface-card;
+  backdrop-filter: blur(20px);
+  animation      : slide-right $duration-slow $easing-standard 0.1s both;
+
+  @media (max-width: 860px) {
+    width      : 100%;
+    padding    : $space-10 $space-6;
+    border-left: none;
+  }
+}
+
+.form-card {
   width: 100%;
+}
+
+
+// 7a. Form Header ────────────────────────────────────────────────
+
+.form-eyebrow {
   margin-bottom: 10px;
-  padding: 10px;
+  @include label-caps(10.5px, $color-accent);
+  letter-spacing: 0.14em;
 }
 
-button {
-  width: 100%;
-  padding: 10px;
-  background: #2563eb;
-  color: white;
-  border: none;
+.form-title {
+  font-family: $font-display;
+  font-size  : 30px;
+  font-weight: 600;
+  color      : $color-text-primary;
+  line-height: 1.25;
+}
+
+.form-subtitle {
+  margin-top   : $space-1 + 2;
+  margin-bottom: $space-8;
+  font-size    : 13px;
+  font-weight  : 300;
+  color        : rgba(160, 190, 230, 0.50);
+}
+
+
+// 7b. Fields & Inputs ────────────────────────────────────────────
+
+.field {
+  margin-bottom: 18px;
+
+  label {
+    display      : block;
+    margin-bottom: 7px;
+    @include label-caps(11px, rgba(160, 195, 240, 0.60));
+  }
+}
+
+.input-wrap {
+  position: relative;
+}
+
+.input-icon {
+  position        : absolute;
+  left            : 14px;
+  top             : 50%;
+  // transform       : translateY(-50%);
+  opacity         : 0.35;
+  pointer-events  : none;
+}
+
+.field input {
+  width      : 100%;
+  padding    : $space-3 $space-10 $space-3 $space-10;
+  background : $color-surface-input;
+  border     : 0.5px solid $color-border-soft;
+  border-radius: $radius-md;
+  font-family: $font-body;
+  font-size  : 14px;
+  font-weight: 300;
+  color      : $color-text-primary;
+  outline    : none;
+  transition :
+    border-color  $duration-base $easing-standard,
+    background    $duration-base $easing-standard,
+    box-shadow    $duration-base $easing-standard;
+
+  &::placeholder {
+    color: rgba(160, 195, 240, 0.22);
+  }
+
+  &:focus {
+    border-color: rgba($color-accent, 0.45);
+    background  : rgba(255, 255, 255, 0.06);
+    box-shadow  : 0 0 0 3px rgba($color-accent, 0.06);
+  }
+}
+
+.toggle-pw {
+  position  : absolute;
+  right     : $space-3;
+  top       : 50%;
+  transform : translateY(-50%);
+  background: none;
+  border    : none;
+  cursor    : pointer;
+  font-size : 14px;
+  opacity   : 0.40;
+  transition: opacity $duration-fast $easing-standard;
+
+  &:hover { opacity: 0.75; }
+}
+
+
+// 7c. Options Row ────────────────────────────────────────────────
+
+.options-row {
+  @include flex-between;
+  margin-bottom: $space-6;
+}
+
+.remember-label {
+  display    : flex;
+  align-items: center;
+  gap        : 7px;
+  cursor     : pointer;
+
+  input[type='checkbox'] {
+    width       : 14px;
+    height      : 14px;
+    accent-color: $color-accent;
+    cursor      : pointer;
+  }
+
+  span {
+    font-size  : 12px;
+    font-weight: 300;
+    color      : $color-text-ghost;
+  }
+}
+
+.forgot-link {
+  font-size  : 12px;
+  font-weight: 400;
+  color      : $color-text-link;
+  opacity    : 0.80;
+  cursor     : pointer;
+  transition : opacity $duration-fast $easing-standard;
+
+  &:hover { opacity: 1; }
+}
+
+
+// 7d. Submit Button ──────────────────────────────────────────────
+
+.btn-login {
+  width        : 100%;
+  padding      : 13.5px;
+  margin-bottom: $space-5;
+  @include btn-gradient;
+  border       : none;
+  border-radius: $radius-md;
+  font-family  : $font-body;
+  font-size    : 14px;
+  font-weight  : 500;
+  letter-spacing: 0.04em;
+  color        : #e3f2fd;
+  cursor       : pointer;
+  box-shadow   : 0 4px 24px $color-btn-shadow;
+  transition   :
+    opacity    $duration-base $easing-standard,
+    transform  $duration-fast $easing-standard,
+    box-shadow $duration-base $easing-standard;
+
+  &:hover:not(:disabled) {
+    opacity   : 0.92;
+    transform : translateY(-1px);
+    box-shadow: 0 8px 30px $color-btn-shadow-h;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.60;
+    cursor : not-allowed;
+  }
+}
+
+// Loading spinner (shown inside btn-login while request is in flight)
+.spinner {
+  display       : inline-block;
+  width         : 16px;
+  height        : 16px;
+  border        : 2px solid rgba(255, 255, 255, 0.30);
+  border-top-color: #fff;
+  border-radius : 50%;
+  vertical-align: middle;
+  animation     : spin 0.7s linear infinite;
+}
+
+
+// 7e. Contact Strip ──────────────────────────────────────────────
+
+.contact-strip {
+  display    : flex;
+  align-items: flex-start;
+  gap        : 10px;
+  padding    : 13px 15px;
+  background : $color-surface-info;
+  border     : 0.5px solid $color-border-info;
+  border-radius: $radius-md;
+
+  svg {
+    flex-shrink: 0;
+    margin-top : 1px;
+    opacity    : 0.35;
+  }
+
+  .contact-info {
+    font-size  : 11px;
+    font-weight: 300;
+    color      : rgba(150, 185, 235, 0.50);
+    line-height: 1.6;
+
+    strong {
+      display    : block;
+      margin-bottom: 1px;
+      font-weight: 500;
+      color      : rgba(150, 185, 235, 0.75);
+    }
+  }
+}
+
+
+// ── 8. Keyframe Animations ───────────────────────────────────────
+
+@keyframes slide-left {
+  from { opacity: 0; transform: translateX(-30px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+@keyframes slide-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+@keyframes orb-float {
+  0%, 100% { transform: translate(0,    0);     }
+  33%      { transform: translate(15px, -20px); }
+  66%      { transform: translate(-10px, 10px); }
+}
+
+@keyframes pulse-ring {
+  0%   { transform: scale(1);    opacity: 0.6; }
+  100% { transform: scale(1.25); opacity: 0;   }
+}
+
+@keyframes eq-bounce {
+  from { transform: scaleY(0.35); }
+  to   { transform: scaleY(1);    }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

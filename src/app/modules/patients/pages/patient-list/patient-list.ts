@@ -1,6 +1,7 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { ActivatedRoute } from '@angular/router';
 
 import { AddPatientComponent } from '../add-patient/add-patient';
 import { PatientService } from '../../../../core/services/patient';
@@ -42,12 +43,26 @@ export class PatientListComponent implements OnInit {
     private visitService: VisitService,
     private invoiceService: InvoiceService,
     private router: Router,
+    private route: ActivatedRoute,
     private cdr: ChangeDetectorRef,
     private toast: ToastService,
     private loader: LoaderService,
   ) {}
 
   ngOnInit() {
+    // Check if we should open the add patient dialog
+    this.route.queryParams.subscribe(params => {
+      if (params['add'] === 'true') {
+        this.showDialog = true;
+        // Clean up the URL
+        this.router.navigate([], {
+          relativeTo: this.route,
+          queryParams: {},
+          replaceUrl: true
+        });
+      }
+    });
+
     this.loadData();
   }
 

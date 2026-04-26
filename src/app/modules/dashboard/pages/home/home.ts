@@ -1,82 +1,246 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 
 import { Auth } from '@angular/fire/auth';
 import { UserService } from '../../../../core/services/user';
 import { ServiceService } from '../../../../core/services/service';
+import { PatientService } from '../../../../core/services/patient';
+import { ProductService } from '../../../../core/services/product';
+import { VisitService } from '../../../../core/services/visit';
 
 import { combineLatest } from 'rxjs';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, DatePipe],
   templateUrl: './home.html',
   styleUrls: ['./home.scss']
 })
 export class HomeComponent implements OnInit {
 
-  // modules: any[] = [];
-  modules = [
-        { name: 'Patients', route: '/patients', icon: '🧑', count: 0 },
+  userName: string = '';
+  currentDate: string = '';
 
-        { name: 'Services', route: '/services', icon: '🧾', count: 0 },
+  stats = {
+    patients: 0,
+    services: 0,
+    products: 0,
+    visits: 0,
+    revenue: 0,
+    patientsTrend: 0,
+    servicesTrend: 0,
+    productsTrend: 0,
+    revenueTrend: 0
+  };
 
-        { name: 'Products', route: '/products', icon: '💊', count: 0 },
+  recentActivities: any[] = [];
 
-        // { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true, count: 0 },
-
-        // { name: 'Users', route: '/admin', icon: '👥', adminOnly: true, count: 0}
-      ];
+  quickActions = [
+    { name: 'Add Patient', route: '/patients', queryParams: { add: 'true' }, icon: '👤', color: '#4F46E5' },
+    { name: 'Manage Services', route: '/services', icon: '🧾', color: '#059669' },
+    { name: 'Manage Products', route: '/products', icon: '💊', color: '#DC2626' },
+    { name: 'View Patients', route: '/patients', icon: '📅', color: '#7C3AED' }
+  ];
 
   constructor(
     private router: Router,
     private auth: Auth,
     private userService: UserService,
-    private serviceService: ServiceService
+    private serviceService: ServiceService,
+    private patientService: PatientService,
+    private productService: ProductService,
+    private visitService: VisitService,
+    private cdr: ChangeDetectorRef
+
   ) {}
 
   async ngOnInit() {
+    this.currentDate = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
 
     const user = this.auth.currentUser;
-
     if (!user) return;
 
     const dbUser = await this.userService.getUserByEmail(user.email!);
+    this.userName = dbUser?.name || user.displayName || 'User';
 
-    this.loadModules(dbUser?.role || '');
+    this.loadDashboardData();
   }
 
-  loadModules(role: string) {
-
+  loadDashboardData() {
     combineLatest([
+      this.patientService.getPatients(),
       this.serviceService.getServices(),
-      this.userService.getUsers()
-    ]).subscribe(([services, users]) => {
+      this.productService.getProducts(),
+      this.visitService.getVisits()
+    ]).subscribe(([patients, services, products, visits]) => {
+      this.stats.patients = patients.length;
+      this.stats.services = services.length;
+      this.stats.products = products.length;
+      this.stats.visits = visits.length;
 
-      const allModules = [
-        { name: 'Patients', route: '/patients', icon: '🧑', count: 0 },
+      // Calculate revenue from visits
+      this.stats.revenue = visits.reduce((total, visit) => total + (visit.total || 0), 0);
 
-        { name: 'Services', route: '/services', icon: '🧾', count: services.length },
+      // Calculate trends (current month vs last month)
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+      const lastMonth = currentMonth === 0 ? 11 : currentMonth - 1;
+      const lastMonthYear = currentMonth === 0 ? currentYear - 1 : currentYear;
 
-        { name: 'Products', route: '/products', icon: '💊', count: 0 },
+      // Patients trend
+      const currentMonthPatients = patients.filter(p =>
+        p.createdAt && new Date(p.createdAt).getMonth() === currentMonth &&
+        new Date(p.createdAt).getFullYear() === currentYear
+      ).length;
 
-        // { name: 'Expenses', route: '/expenses', icon: '💰', adminOnly: true, count: 0 },
+      const lastMonthPatients = patients.filter(p =>
+        p.createdAt && new Date(p.createdAt).getMonth() === lastMonth &&
+        new Date(p.createdAt).getFullYear() === lastMonthYear
+      ).length;
 
-        // { name: 'Users', route: '/admin', icon: '👥', adminOnly: true, count: users.length }
-      ];
+      this.stats.patientsTrend = lastMonthPatients > 0 ?
+        ((currentMonthPatients - lastMonthPatients) / lastMonthPatients * 100) : 0;
 
-      // 🔥 ROLE FILTER
-      // this.modules = allModules.filter(m => {
-      //   if (m.adminOnly && role !== 'admin') return false;
-      //   return true;
-      // });
+      // Services trend
+      const currentMonthServices = services.filter(s =>
+        s.createdAt && new Date(s.createdAt).getMonth() === currentMonth &&
+        new Date(s.createdAt).getFullYear() === currentYear
+      ).length;
 
+      const lastMonthServices = services.filter(s =>
+        s.createdAt && new Date(s.createdAt).getMonth() === lastMonth &&
+        new Date(s.createdAt).getFullYear() === lastMonthYear
+      ).length;
+
+      this.stats.servicesTrend = lastMonthServices > 0 ?
+        ((currentMonthServices - lastMonthServices) / lastMonthServices * 100) : 0;
+
+      // Products trend
+      const currentMonthProducts = products.filter(p =>
+        p.createdAt && new Date(p.createdAt).getMonth() === currentMonth &&
+        new Date(p.createdAt).getFullYear() === currentYear
+      ).length;
+
+      const lastMonthProducts = products.filter(p =>
+        p.createdAt && new Date(p.createdAt).getMonth() === lastMonth &&
+        new Date(p.createdAt).getFullYear() === lastMonthYear
+      ).length;
+
+      this.stats.productsTrend = lastMonthProducts > 0 ?
+        ((currentMonthProducts - lastMonthProducts) / lastMonthProducts * 100) : 0;
+
+      // Revenue trend (current month vs last month visits)
+      const currentMonthRevenue = visits
+        .filter(v => v.visitDate &&
+          new Date(v.visitDate).getMonth() === currentMonth &&
+          new Date(v.visitDate).getFullYear() === currentYear
+        )
+        .reduce((total, visit) => total + (visit.total || 0), 0);
+
+      const lastMonthRevenue = visits
+        .filter(v => v.visitDate &&
+          new Date(v.visitDate).getMonth() === lastMonth &&
+          new Date(v.visitDate).getFullYear() === lastMonthYear
+        )
+        .reduce((total, visit) => total + (visit.total || 0), 0);
+
+      this.stats.revenueTrend = lastMonthRevenue > 0 ?
+        ((currentMonthRevenue - lastMonthRevenue) / lastMonthRevenue * 100) : 0;
+
+      // Collect all recent activities
+      const activities: any[] = [];
+
+      // Recent patients
+      patients
+        .filter(p => p.createdAt)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 3)
+        .forEach(patient => {
+          activities.push({
+            type: 'patient',
+            description: `New patient: ${patient.name}`,
+            details: `Mobile: ${patient.mobile}`,
+            date: patient.createdAt,
+            amount: null,
+            icon: '👤',
+            timestamp: new Date(patient.createdAt).getTime()
+          });
+        });
+
+      // Recent services
+      services
+        .filter(s => s.createdAt)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 3)
+        .forEach(service => {
+          activities.push({
+            type: 'service',
+            description: `New service: ${service.name}`,
+            details: `Price: ₹${service.price || service.finalPrice || 0}`,
+            date: service.createdAt,
+            amount: service.price || service.finalPrice || 0,
+            icon: '🧾',
+            timestamp: new Date(service.createdAt).getTime()
+          });
+        });
+
+      // Recent products
+      products
+        .filter(p => p.createdAt)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+        .slice(0, 3)
+        .forEach(product => {
+          activities.push({
+            type: 'product',
+            description: `New product: ${product.name}`,
+            details: `Price: ₹${product.price || 0}, Stock: ${product.stock || 0}`,
+            date: product.createdAt,
+            amount: product.price || 0,
+            icon: '💊',
+            timestamp: new Date(product.createdAt).getTime()
+          });
+        });
+
+      // Recent visits
+      visits
+        .sort((a, b) => new Date(b.visitDate).getTime() - new Date(a.visitDate).getTime())
+        .slice(0, 3)
+        .forEach(visit => {
+          const patient = patients.find(p => p.id === visit.patientId);
+          activities.push({
+            type: 'visit',
+            description: `Visit with ${patient?.name || 'Patient'}`,
+            details: `Mobile: ${patient?.mobile || 'N/A'}, Amount: ₹${visit.total || 0}`,
+            date: visit.visitDate,
+            amount: visit.total || 0,
+            icon: '📅',
+            timestamp: new Date(visit.visitDate).getTime()
+          });
+        });
+
+      // Sort all activities by timestamp and take top 8
+      this.recentActivities = activities
+        .sort((a, b) => b.timestamp - a.timestamp)
+        .slice(0, 3);
+
+
+      this.cdr.detectChanges();
     });
   }
 
-  navigate(route: string) {
-    this.router.navigate([route]);
+  navigate(route: string, queryParams?: any) {
+    if (queryParams) {
+      this.router.navigate([route], { queryParams });
+    } else {
+      this.router.navigate([route]);
+    }
   }
 }

@@ -1,12 +1,120 @@
-<div class="dashboard">
-
-  <h2>Dashboard</h2>
-
-  <div class="grid">
-    <div class="card" *ngFor="let m of modules" (click)="navigate(m.route)">
-      <div class="icon">{{m.icon}}</div>
-      <div class="title">{{m.name}}</div>
+<div class="dashboard-container">
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <h1 class="welcome-title">Welcome back, {{ userName }}! 👋</h1>
+      <p class="hero-subtitle">{{ currentDate }}</p>
+      <p class="hero-description">Here's what's happening with your clinic today.</p>
+    </div>
+    <div class="hero-illustration">
+      <div class="illustration-circle">
+        <img src="assets/logo.png" alt="Clinic Logo" class="clinic-logo illustration-icon" />
+      </div>
     </div>
   </div>
 
+  <!-- Statistics Cards -->
+  <div class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card patients-card">
+        <div class="stat-icon">
+          <span>👥</span>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.patients }}</h3>
+          <p class="stat-label">Total Patients</p>
+          <div class="stat-trend">
+            <span class="trend-icon">{{ stats.patientsTrend >= 0 ? '↗️' : '↘️' }}</span>
+            <span class="trend-text">{{ stats.patientsTrend >= 0 ? '+' : '' }}{{ stats.patientsTrend.toFixed(1) }}% this month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card services-card">
+        <div class="stat-icon">
+          <span>🧾</span>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.services }}</h3>
+          <p class="stat-label">Services Offered</p>
+          <div class="stat-trend">
+            <span class="trend-icon">{{ stats.servicesTrend >= 0 ? '↗️' : '↘️' }}</span>
+            <span class="trend-text">{{ stats.servicesTrend >= 0 ? '+' : '' }}{{ stats.servicesTrend.toFixed(1) }}% this month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card products-card">
+        <div class="stat-icon">
+          <span>💊</span>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.products }}</h3>
+          <p class="stat-label">Products in Stock</p>
+          <div class="stat-trend">
+            <span class="trend-icon">{{ stats.productsTrend >= 0 ? '↗️' : '↘️' }}</span>
+            <span class="trend-text">{{ stats.productsTrend >= 0 ? '+' : '' }}{{ stats.productsTrend.toFixed(1) }}% this month</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card revenue-card">
+        <div class="stat-icon">
+          <span>💰</span>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">₹{{ stats.revenue }}</h3>
+          <p class="stat-label">Monthly Revenue</p>
+          <div class="stat-trend">
+            <span class="trend-icon">{{ stats.revenueTrend >= 0 ? '↗️' : '↘️' }}</span>
+            <span class="trend-text">{{ stats.revenueTrend >= 0 ? '+' : '' }}{{ stats.revenueTrend.toFixed(1) }}% this month</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Content Grid -->
+  <div class="main-content">
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="quick-actions-grid">
+        <div class="action-card" *ngFor="let action of quickActions" (click)="navigate(action.route, action.queryParams)">
+          <div class="action-icon" [style.background-color]="action.color">
+            <span>{{ action.icon }}</span>
+          </div>
+          <div class="action-content">
+            <h4 class="action-title">{{ action.name }}</h4>
+            <p class="action-description">Click to {{ action.name.toLowerCase() }}</p>
+          </div>
+          <div class="action-arrow">→</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Activities -->
+    <div class="recent-activities-section">
+      <h2 class="section-title">Recent 3 Activities</h2>
+      <div class="activities-list">
+        <div class="activity-item" *ngFor="let activity of recentActivities">
+          <div class="activity-icon">
+            <span>{{ activity.icon }}</span>
+          </div>
+          <div class="activity-content">
+            <p class="activity-description">{{ activity.description }}</p>
+            <p class="activity-details" *ngIf="activity.details">{{ activity.details }}</p>
+            <p class="activity-date">{{ activity.date | date:'short' }}</p>
+          </div>
+          <div class="activity-amount" *ngIf="activity.amount">
+            ₹{{ activity.amount }}
+          </div>
+        </div>
+        <div class="no-activities" *ngIf="recentActivities.length === 0">
+          <div class="no-activities-icon">📊</div>
+          <p>No recent activities</p>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
