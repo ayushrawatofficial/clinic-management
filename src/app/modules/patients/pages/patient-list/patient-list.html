@@ -1,4 +1,5 @@
 <div class="page">
+  <div class="page-id">Patient Management / List</div>
 
   <!-- HEADER -->
   <div class="header-bar">
@@ -45,12 +46,12 @@
     </div>
 
 
-    <div class="table-body">
+    <div class="table-body" (scroll)="onTableScroll($event)">
 
       <ng-container *ngIf="filtered.length > 0; else noData">
 
     <div class="row"
-     *ngFor="let p of filtered"
+     *ngFor="let p of visibleFiltered"
      (click)="openPatient(p); $event.stopPropagation()">
       <div>{{ p.patientCode }}</div>
       <div>{{ p.name }}</div>

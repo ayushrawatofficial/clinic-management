@@ -1,4 +1,5 @@
 <div class="page">
+  <div class="page-id">Catalog / Services</div>
 
   <!-- HEADER -->
   <div class="header-bar">
@@ -64,11 +65,11 @@
     </div>
 
     <!-- 🔥 SCROLLABLE BODY -->
-    <div class="table-body">
+    <div class="table-body" (scroll)="onTableScroll($event)">
 
       <ng-container *ngIf="filtered.length > 0; else noData">
 
-        <div class="row" *ngFor="let s of filtered; trackBy: trackById">
+        <div class="row" *ngFor="let s of visibleFiltered; trackBy: trackById">
 
           <div class="center">
             <input type="checkbox"

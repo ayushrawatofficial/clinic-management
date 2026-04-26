@@ -18,6 +18,7 @@ export class SidebarComponent {
     { name: 'Patients', icon: '🧑', route: '/patients' },
     { name: 'Services', icon: '🧾', route: '/services' },
     { name: 'Products', icon: '💊', route: '/products' },
+    { name: 'Revenue', icon: '📈', route: '/revenue' },
     // { name: 'Expenses', icon: '💰', route: '/expenses' },
     // { name: 'Users', icon: '👥', route: '/admin' }
   ];
@@ -43,5 +44,9 @@ export class SidebarComponent {
 
   navigate(route: string) {
     this.router.navigate([route]);
+  }
+
+  isActive(route: string): boolean {
+    return this.router.url === route || this.router.url.startsWith(`${route}/`);
   }
 }

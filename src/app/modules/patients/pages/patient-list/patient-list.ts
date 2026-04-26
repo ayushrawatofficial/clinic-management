@@ -22,9 +22,12 @@ export class PatientListComponent implements OnInit {
   patients: any[] = [];
   visits: any[] = [];
   filtered: any[] = [];
+  visibleFiltered: any[] = [];
 
   search = '';
   showDialog = false;
+  readonly pageSize = 100;
+  displayedCount = 100;
 
   filters = {
     id: '',
@@ -57,7 +60,7 @@ export class PatientListComponent implements OnInit {
 
       this.invoiceService.getAllInvoices().subscribe((invoices: any[]) => {
 
-        this.patients = patients || [];
+        this.patients = (patients || []).sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
 
         this.patients = this.patients.map(p => {
 
@@ -108,6 +111,34 @@ export class PatientListComponent implements OnInit {
       );
 
     });
+
+    this.filtered.sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
+    this.resetVisibleData();
+  }
+
+  onTableScroll(event: Event) {
+    const element = event.target as HTMLElement;
+    const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 100;
+    if (nearBottom) {
+      this.loadMore();
+    }
+  }
+
+  loadMore() {
+    if (this.displayedCount >= this.filtered.length) return;
+    this.displayedCount = Math.min(this.displayedCount + this.pageSize, this.filtered.length);
+    this.visibleFiltered = this.filtered.slice(0, this.displayedCount);
+  }
+
+  resetVisibleData() {
+    this.displayedCount = Math.min(this.pageSize, this.filtered.length);
+    this.visibleFiltered = this.filtered.slice(0, this.displayedCount);
+  }
+
+  private getLatestDateMs(patient: any): number {
+    const lastVisitMs = patient?.lastVisit ? new Date(patient.lastVisit).getTime() : 0;
+    const createdAtMs = patient?.createdAt ? new Date(patient.createdAt).getTime() : 0;
+    return Math.max(lastVisitMs || 0, createdAtMs || 0);
   }
 
   openPatient(patient: any) {

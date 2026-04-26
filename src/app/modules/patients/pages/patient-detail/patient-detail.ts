@@ -21,11 +21,16 @@ export class PatientDetailComponent implements OnInit {
   patientCode = '';
   patient: any = null;
   invoices: any[] = [];
+  visibleInvoices: any[] = [];
   patients: any[] = [];
+  visiblePatients: any[] = [];
   selectedPatientIds = new Set<string>();
   broadcastMessage = `Hello from ${CLINIC_CONFIG.name}.\nPlease note: attach the invoice manually in WhatsApp if needed.`;
   broadcastImageName = '';
   activeTab: 'invoices' | 'whatsapp' = 'invoices';
+  readonly pageSize = 100;
+  invoiceDisplayedCount = 100;
+  patientDisplayedCount = 100;
 
   constructor(
     private route: ActivatedRoute,
@@ -56,7 +61,8 @@ export class PatientDetailComponent implements OnInit {
   loadInvoices() {
     this.loader.show();
     this.invoiceService.getInvoicesByPatientCode(this.patientCode).subscribe((data: any[]) => {
-      this.invoices = data || [];
+      this.invoices = (data || []).sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
+      this.resetVisibleInvoices();
       this.loader.hide();
       this.cdr.detectChanges();
     });
@@ -68,11 +74,56 @@ export class PatientDetailComponent implements OnInit {
       this.patients = (data || []).map(patient => ({
         ...patient,
         mobile: patient.mobile || ''
-      }));
+      })).sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
       this.selectedPatientIds = new Set(this.patients.filter(p => p.mobile).map(p => p.id));
+      this.resetVisiblePatients();
       this.loader.hide();
       this.cdr.detectChanges();
     });
+  }
+
+  onInvoiceTableScroll(event: Event) {
+    const element = event.target as HTMLElement;
+    const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 100;
+    if (nearBottom) {
+      this.loadMoreInvoices();
+    }
+  }
+
+  onPatientsListScroll(event: Event) {
+    const element = event.target as HTMLElement;
+    const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 100;
+    if (nearBottom) {
+      this.loadMorePatients();
+    }
+  }
+
+  loadMoreInvoices() {
+    if (this.invoiceDisplayedCount >= this.invoices.length) return;
+    this.invoiceDisplayedCount = Math.min(this.invoiceDisplayedCount + this.pageSize, this.invoices.length);
+    this.visibleInvoices = this.invoices.slice(0, this.invoiceDisplayedCount);
+  }
+
+  loadMorePatients() {
+    if (this.patientDisplayedCount >= this.patients.length) return;
+    this.patientDisplayedCount = Math.min(this.patientDisplayedCount + this.pageSize, this.patients.length);
+    this.visiblePatients = this.patients.slice(0, this.patientDisplayedCount);
+  }
+
+  private resetVisibleInvoices() {
+    this.invoiceDisplayedCount = Math.min(this.pageSize, this.invoices.length);
+    this.visibleInvoices = this.invoices.slice(0, this.invoiceDisplayedCount);
+  }
+
+  private resetVisiblePatients() {
+    this.patientDisplayedCount = Math.min(this.pageSize, this.patients.length);
+    this.visiblePatients = this.patients.slice(0, this.patientDisplayedCount);
+  }
+
+  private getLatestDateMs(record: any): number {
+    const createdAtMs = record?.createdAt ? new Date(record.createdAt).getTime() : 0;
+    const dateMs = record?.date ? new Date(record.date).getTime() : 0;
+    return Math.max(createdAtMs || 0, dateMs || 0);
   }
 
   togglePatientSelection(patientId: string, selected: boolean) {

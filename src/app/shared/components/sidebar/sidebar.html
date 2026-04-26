@@ -2,7 +2,7 @@
 
   <!-- MENU -->
   <div class="menu">
-    <div class="item" *ngFor="let m of menu" (click)="navigate(m.route)">
+    <div class="item" *ngFor="let m of menu" (click)="navigate(m.route)" [class.active]="isActive(m.route)">
       <span class="icon">{{m.icon}}</span>
       <span class="text" *ngIf="!collapsed">{{m.name}}</span>
     </div>

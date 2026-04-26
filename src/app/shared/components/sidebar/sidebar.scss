@@ -1,11 +1,12 @@
 .sidebar {
   width: 200px;
   height: 100vh;
-  background: #0f172a;
+  background: linear-gradient(180deg, #0b1220 0%, #0f172a 40%, #111c31 100%);
   color: white;
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
+  border-right: 1px solid rgba(148, 163, 184, 0.18);
 }
 
 .sidebar.collapsed {
@@ -46,25 +47,33 @@
 .item {
   display: flex;
   align-items: center;
-  padding: 12px 18px;
+  padding: 12px 14px;
+  margin: 3px 8px;
+  border-radius: 10px;
   cursor: pointer;
-  transition: 0.2s;
+  transition: all 0.2s ease;
 }
 
 .item:hover {
-  background: #1e293b;
+  background: rgba(51, 65, 85, 0.65);
+  transform: translateX(2px);
 }
 
 .item.active {
-  background: #2563eb;
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.3);
+  border: 1px solid rgba(147, 197, 253, 0.5);
 }
 
 .icon {
-  font-size: 18px;
+  font-size: 16px;
 }
 
 .text {
   margin-left: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
 }
 
 /* COLLAPSED FIX */

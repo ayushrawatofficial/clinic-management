@@ -42,8 +42,8 @@
         <div>Actions</div>
       </div>
 
-      <div class="table-body">
-        <div class="row" *ngFor="let i of invoices">
+      <div class="table-body" (scroll)="onInvoiceTableScroll($event)">
+        <div class="row" *ngFor="let i of visibleInvoices">
 
           <div title="{{ i.invoiceNumber }}">{{ i.invoiceNumber }}</div>
           <div title="{{ getServicesList(i.services) }}" class="services-cell">{{ getServicesList(i.services) }}</div>
@@ -102,8 +102,8 @@
           </div>
         </div>
 
-        <div class="receiver-list">
-          <div class="receiver-row" *ngFor="let p of patients">
+        <div class="receiver-list" (scroll)="onPatientsListScroll($event)">
+          <div class="receiver-row" *ngFor="let p of visiblePatients">
             <label>
               <input
                 type="checkbox"

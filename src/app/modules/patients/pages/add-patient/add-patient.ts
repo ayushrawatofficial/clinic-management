@@ -14,6 +14,7 @@ import { ServiceService } from '../../../../core/services/service';
 import { ProductService } from '../../../../core/services/product';
 import { VisitService } from '../../../../core/services/visit';
 import { InvoiceService } from '../../../../core/services/invoice';
+import { ToastService } from '../../../../shared/services/toast';
 
 import { SuccessDialogComponent } from '../../../../shared/components/success-dialog/success-dialog';
 import { LoaderComponent } from '../../../../shared/components/loader/loader';
@@ -77,7 +78,8 @@ export class AddPatientComponent implements OnInit {
     private serviceService: ServiceService,
     private productService: ProductService,
     private visitService: VisitService,
-    private invoiceService: InvoiceService
+    private invoiceService: InvoiceService,
+    private toast: ToastService
   ) {}
 
   ngOnInit() {
@@ -149,8 +151,15 @@ export class AddPatientComponent implements OnInit {
     this.errors.age = '';
     if (this.age === null || this.age === undefined) {
       this.errors.age = 'Age required';
-    } else if (this.age < 0 || this.age > 120) {
-      this.errors.age = 'Age must be between 0-120';
+    } else if (this.age < 1 || this.age > 120) {
+      this.errors.age = 'Age must be between 1-120';
+    }
+  }
+
+  onAgeKeyPress(event: any) {
+    const charCode = event.which ? event.which : event.keyCode;
+    if (charCode < 48 || charCode > 57) {
+      event.preventDefault();
     }
   }
 
@@ -160,18 +169,22 @@ export class AddPatientComponent implements OnInit {
 
     this.errors = { mobile: '', name: '', age: '', paymentMode: '' };
 
+    this.mobile = (this.mobile || '').replace(/\D/g, '').slice(0, 10);
+    this.name = (this.name || '').trim();
+    this.age = this.age === null || this.age === undefined ? null : Number(this.age);
+
     if (!this.mobile || this.mobile.length !== 10) {
       this.errors.mobile = 'Enter valid 10 digit mobile';
     }
 
-    if (!this.name || !this.name.trim()) {
+    if (!this.name) {
       this.errors.name = 'Name required';
     }
 
     if (!this.age) {
       this.errors.age = 'Age required';
-    } else if (this.age < 0 || this.age > 120) {
-      this.errors.age = 'Age must be between 0-120';
+    } else if (this.age < 1 || this.age > 120) {
+      this.errors.age = 'Age must be between 1-120';
     }
 
     // Payment mode required if services or products selected
@@ -285,7 +298,7 @@ export class AddPatientComponent implements OnInit {
 
   async save() {
 
-    if (this.saving) return; // 🔥 prevent double click
+    if (this.saving) return;
 
     this.submitted = true;
 
@@ -352,37 +365,34 @@ export class AddPatientComponent implements OnInit {
         date: new Date()
       };
 
-      // 🚀 instant success
+      await Promise.all([
+        this.visitService.addVisit({
+          patientId,
+          visitDate: new Date().toISOString(),
+          services,
+          products,
+          total: this.totalAmount
+        }),
+        this.invoiceService.createInvoice({
+          ...invoiceData,
+          createdAt: new Date().toISOString()
+        }),
+        ...this.selectedProducts.map(p =>
+          this.productService.updateProduct(p.id, {
+            stock: p.stock - p.qty
+          })
+        )
+      ]);
+
       this.savedPatient = invoiceData;
       this.showSuccess = true;
+      this.toast.show('Patient registered successfully', 'success');
       this.saving = false;
-
-      // 🔥 background save
-      setTimeout(() => {
-        Promise.all([
-          this.visitService.addVisit({
-            patientId,
-            visitDate: new Date().toISOString(),
-            services,
-            products,
-            total: this.totalAmount
-          }),
-          this.invoiceService.createInvoice({
-            ...invoiceData,
-            createdAt: new Date().toISOString()
-          }),
-          ...this.selectedProducts.map(p =>
-            this.productService.updateProduct(p.id, {
-              stock: p.stock - p.qty
-            })
-          )
-        ]).catch(err => console.error('Background save failed', err));
-      }, 0);
 
     } catch (e) {
       console.error(e);
       this.saving = false;
-      alert('Error saving patient');
+      this.toast.show('Error saving patient. Please try again.', 'error');
     }
   }
 

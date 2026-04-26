@@ -19,6 +19,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
 
   services: any[] = [];
   filtered: any[] = [];
+  visibleFiltered: any[] = [];
 
   showDialog = false;
   editData: any = null;
@@ -35,6 +36,8 @@ export class ServicesComponent implements OnInit, OnDestroy {
   };
 
   sub!: Subscription;
+  readonly pageSize = 100;
+  displayedCount = 100;
 
   // 🔥 BULK FEATURE
   bulkType: 'percent' | 'flat' = 'percent';
@@ -89,7 +92,7 @@ export class ServicesComponent implements OnInit, OnDestroy {
       // Wait for all updates to complete
       await Promise.all(updatePromises);
 
-      this.services = data;
+      this.services = (data || []).sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
       this.applyFilter();
 
       this.loader.hide();
@@ -119,7 +122,33 @@ export class ServicesComponent implements OnInit, OnDestroy {
       (!this.filters.finalPrice || String(s.finalPrice).includes(this.filters.finalPrice))
     );
 
+    this.filtered.sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
+    this.resetVisibleData();
+
     this.updateSelectionState();
+  }
+
+  onTableScroll(event: Event) {
+    const element = event.target as HTMLElement;
+    const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 100;
+    if (nearBottom) {
+      this.loadMore();
+    }
+  }
+
+  loadMore() {
+    if (this.displayedCount >= this.filtered.length) return;
+    this.displayedCount = Math.min(this.displayedCount + this.pageSize, this.filtered.length);
+    this.visibleFiltered = this.filtered.slice(0, this.displayedCount);
+  }
+
+  resetVisibleData() {
+    this.displayedCount = Math.min(this.pageSize, this.filtered.length);
+    this.visibleFiltered = this.filtered.slice(0, this.displayedCount);
+  }
+
+  private getLatestDateMs(service: any): number {
+    return service?.createdAt ? new Date(service.createdAt).getTime() : 0;
   }
 
   openDialog(data: any = null) {

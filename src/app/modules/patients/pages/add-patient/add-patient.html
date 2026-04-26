@@ -26,7 +26,7 @@
     <!-- AGE -->
     <div class="field">
       <label>Age *</label>
-      <input type="number" [(ngModel)]="age" (input)="onAgeInput($event)" [class.error]="submitted && errors.age" min="0" max="120" />
+      <input type="text" inputmode="numeric" maxlength="3" [(ngModel)]="age" (input)="onAgeInput($event)" (keypress)="onAgeKeyPress($event)" [class.error]="submitted && errors.age" />
       <div class="error-msg" *ngIf="submitted && errors.age">{{errors.age}}</div>
     </div>
 

@@ -1,4 +1,5 @@
 <div class="page">
+  <div class="page-id">Inventory / Products</div>
 
   <!-- HEADER -->
   <div class="header-bar">
@@ -48,10 +49,10 @@
     </div>
 
     <!-- DATA -->
-      <div class="table-body">
+      <div class="table-body" (scroll)="onTableScroll($event)">
     <ng-container *ngIf="filtered.length > 0; else noData">
 
-      <div class="row" *ngFor="let p of filtered">
+      <div class="row" *ngFor="let p of visibleFiltered">
 
         <div class="name">{{ p.name }}</div>
 

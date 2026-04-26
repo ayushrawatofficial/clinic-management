@@ -1,0 +1,150 @@
+<div class="page">
+  <div class="sticky-top">
+    <div class="page-id-row">
+      <div class="page-id">Finance / Revenue Analytics</div>
+      <button type="button" class="download-btn" (click)="downloadMonthlyReport()">Download Detailed Report</button>
+    </div>
+
+    <div class="stats">
+      <div class="card card-fy">
+        <div class="title">Current Financial Year</div>
+        <div class="value">₹{{ currentFinancialYearRevenue }}</div>
+        <div class="date">{{ currentFinancialYearLabel }}</div>
+      </div>
+      <div class="card card-month">
+        <div class="title">This Month</div>
+        <div class="value">₹{{ thisMonthRevenue }}</div>
+        <div class="date">{{ (today | date:'MMM yyyy') || '' }}</div>
+      </div>
+      <div class="card card-today">
+        <div class="title">Today</div>
+        <div class="value">₹{{ todayRevenue }}</div>
+        <div class="date">{{ today | date:'dd MMM yyyy' }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="content-scroll">
+    <div class="range-box">
+      <h3>Date Range Revenue Filter</h3>
+      <div class="range-row">
+        <label>
+          From
+          <input type="date" [(ngModel)]="fromDate" />
+        </label>
+        <label>
+          To
+          <input type="date" [(ngModel)]="toDate" />
+        </label>
+        <button type="button" (click)="applyDateRange()">Get Total</button>
+      </div>
+      <div class="range-result" *ngIf="rangeCount > 0 || (fromDate && toDate)">
+        <div>Total Revenue: <b>₹{{ rangeTotal }}</b></div>
+        <div>Total Invoices: <b>{{ rangeCount }}</b></div>
+        <div class="hint">All breakdowns below follow this date range when selected.</div>
+      </div>
+    </div>
+
+    <div class="summary-grid">
+      <div class="summary-card">
+        <h3>Date-wise Revenue</h3>
+        <div class="summary-table">
+          <div class="summary-row head">
+            <span>Date</span>
+            <span>Invoices</span>
+            <span>Total</span>
+          </div>
+          <div class="no-data" *ngIf="dateWiseSummary.length === 0">No revenue records found.</div>
+          <div class="summary-row" *ngFor="let item of dateWiseSummary">
+            <span>{{ item.date }}</span>
+            <span>{{ item.count }}</span>
+            <span>₹{{ item.total }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <h3>Service-wise Revenue</h3>
+        <div class="summary-table">
+          <div class="summary-row head">
+            <span>Service</span>
+            <span>Qty</span>
+            <span>Total</span>
+          </div>
+          <div class="no-data" *ngIf="serviceWiseSummary.length === 0">No service entries found.</div>
+          <div class="summary-row" *ngFor="let item of serviceWiseSummary">
+            <span>{{ item.name }}</span>
+            <span>{{ item.qty }}</span>
+            <span>₹{{ item.total }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <h3>Product-wise Revenue</h3>
+        <div class="summary-table">
+          <div class="summary-row head">
+            <span>Product</span>
+            <span>Qty</span>
+            <span>Total</span>
+          </div>
+          <div class="no-data" *ngIf="productWiseSummary.length === 0">No product entries found.</div>
+          <div class="summary-row" *ngFor="let item of productWiseSummary">
+            <span>{{ item.name }}</span>
+            <span>{{ item.qty }}</span>
+            <span>₹{{ item.total }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-grid two-col">
+      <div class="summary-card">
+        <h3>Payment Mode-wise Revenue</h3>
+        <div class="summary-table">
+          <div class="summary-row head payment-row">
+            <span>Payment Mode</span>
+            <span>Invoices</span>
+            <span>Total</span>
+          </div>
+          <div class="no-data" *ngIf="paymentModeSummary.length === 0">No payment mode records found.</div>
+          <div class="summary-row payment-row" *ngFor="let item of paymentModeSummary">
+            <span>{{ item.mode }}</span>
+            <span>{{ item.count }}</span>
+            <span>₹{{ item.total }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <h3>Top 10 Services / Products</h3>
+        <div class="top-split">
+          <div>
+            <h4>Top Services</h4>
+            <div class="top-list">
+              <div class="top-item" *ngFor="let item of topServices">
+                <span class="name">{{ item.name }}</span>
+                <span class="meta">Qty {{ item.qty }} | ₹{{ item.total }}</span>
+              </div>
+              <div class="no-data" *ngIf="topServices.length === 0">No service data.</div>
+            </div>
+          </div>
+          <div>
+            <h4>Top Products</h4>
+            <div class="top-list">
+              <div class="top-item" *ngFor="let item of topProducts">
+                <span class="name">{{ item.name }}</span>
+                <span class="meta">Qty {{ item.qty }} | ₹{{ item.total }}</span>
+              </div>
+              <div class="no-data" *ngIf="topProducts.length === 0">No product data.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grand-total">
+      Grand Total Revenue (Selected Range): <b>₹{{ grandTotalRevenue }}</b>
+    </div>
+  </div>
+</div>

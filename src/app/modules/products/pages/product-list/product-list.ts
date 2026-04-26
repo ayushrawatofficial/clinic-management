@@ -19,11 +19,14 @@ export class ProductListComponent implements OnInit {
 
   products: any[] = [];
   filtered: any[] = [];
+  visibleFiltered: any[] = [];
 
   showDialog = false;
   selectedProduct: any = null;
 
   search = '';
+  readonly pageSize = 100;
+  displayedCount = 100;
 
   filters = {
   name: '',
@@ -43,7 +46,7 @@ export class ProductListComponent implements OnInit {
   ngOnInit() {
     this.loader.show();
     this.sub = this.productService.getProducts().subscribe(data => {
-      this.products = data || [];
+      this.products = (data || []).sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
       this.applyFilter();
 
       this.loader.hide();
@@ -85,6 +88,31 @@ export class ProductListComponent implements OnInit {
       );
 
     });
+    this.filtered.sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
+    this.resetVisibleData();
+  }
+
+  onTableScroll(event: Event) {
+    const element = event.target as HTMLElement;
+    const nearBottom = element.scrollTop + element.clientHeight >= element.scrollHeight - 100;
+    if (nearBottom) {
+      this.loadMore();
+    }
+  }
+
+  loadMore() {
+    if (this.displayedCount >= this.filtered.length) return;
+    this.displayedCount = Math.min(this.displayedCount + this.pageSize, this.filtered.length);
+    this.visibleFiltered = this.filtered.slice(0, this.displayedCount);
+  }
+
+  resetVisibleData() {
+    this.displayedCount = Math.min(this.pageSize, this.filtered.length);
+    this.visibleFiltered = this.filtered.slice(0, this.displayedCount);
+  }
+
+  private getLatestDateMs(product: any): number {
+    return product?.createdAt ? new Date(product.createdAt).getTime() : 0;
   }
  ngOnDestroy() {
     this.sub?.unsubscribe();

@@ -55,6 +55,12 @@ export const routes: Routes = [
   loadComponent: () =>
     import('./modules/products/pages/product-list/product-list')
       .then(m => m.ProductListComponent)
+},
+{
+  path: 'revenue',
+  loadComponent: () =>
+    import('./modules/revenue/pages/revenue/revenue')
+      .then(m => m.RevenueComponent)
 }
     ]
   }
