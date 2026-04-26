@@ -1,26 +1,30 @@
-.header {
-  height: 60px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+// ================================================================
+//  Header — Full-stretch premium bar
+//  Matches home.scss: white surface · clean borders · DM Sans
+// ================================================================
 
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
 
-  padding: 0 20px;
-}
+// ── Tokens ───────────────────────────────────────────────────────
 
-/* LEFT SIDE */
-.left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
+$font          : -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-.toggle {
-  font-size: 20px;
-  cursor: pointer;
-}
+$color-bg      : #ffffff;
+$color-border  : #e5e7eb;
+$color-shadow  : rgba(0, 0, 0, 0.06);
+
+$color-text-hd : #111827;   // clinic name / time
+$color-text-md : #374151;   // user name
+$color-text-sm : #9ca3af;   // sub-labels, date
+
+$color-accent  : #6366f1;   // indigo — ties sidebar to header
+$color-logout  : #ef4444;
+$color-logout-bg  : #fff5f5;
+$color-logout-bdr : #fecaca;
+
+$h-height  : 60px;
+$gap-right : 20px;
+$dur       : 0.15s;
+
 
 
 .logo {
@@ -29,39 +33,186 @@
   object-fit: contain;
   transition: height 0.3s ease;
 }
+// ── Shell ────────────────────────────────────────────────────────
 
-.logo.collapsed {
-  height: 24px;
+.header {
+  // Full-width stretch — sits above the sidebar+content row
+  width          : 100%;
+  height         : $h-height;
+  background     : $color-bg;
+  border-bottom  : 1px solid $color-border;
+  box-shadow     : 0 1px 8px $color-shadow;
+
+  display        : flex;
+  align-items    : center;
+  justify-content: space-between;
+  padding        : 0 24px 0 16px;
+
+  font-family    : $font;
+  flex-shrink    : 0;
+  z-index        : 100;
 }
 
-.title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #111827;
-}
 
-/* RIGHT SIDE */
-.right {
-  display: flex;
+// ── Left ─────────────────────────────────────────────────────────
+
+.left {
+  display    : flex;
   align-items: center;
-  gap: 20px;
-  font-size: 13px;
-  color: #374151;
+  gap        : 14px;
 }
 
-.user {
-  font-weight: 500;
+// Hamburger toggle
+.toggle-btn {
+  width          : 34px;
+  height         : 34px;
+  border-radius  : 8px;
+  background     : transparent;
+  border         : 1px solid $color-border;
+  cursor         : pointer;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  color          : #6b7280;
+  transition     : background $dur, color $dur;
+  flex-shrink    : 0;
+
+  &:hover {
+    background: #f3f4f6;
+    color     : $color-text-hd;
+  }
 }
 
-.datetime {
-  display: flex;
+// Vertical rule between toggle and clinic name
+.divider {
+  width     : 1px;
+  height    : 22px;
+  background: $color-border;
+  flex-shrink: 0;
+}
+
+// Clinic name + sub-label stacked
+.clinic-info {
+  display       : flex;
   flex-direction: column;
-  font-size: 12px;
-  text-align: right;
 }
 
-.logout {
-  cursor: pointer;
-  color: #ef4444;
-  font-weight: 500;
+.clinic-name {
+  font-size     : 15px;
+  font-weight   : 600;
+  color         : $color-text-hd;
+  letter-spacing: -0.01em;
+  line-height   : 1.2;
+}
+
+.clinic-sub {
+  font-size  : 10.5px;
+  font-weight: 400;
+  color      : $color-text-sm;
+  margin-top : 1px;
+}
+
+
+// ── Right ────────────────────────────────────────────────────────
+
+.right {
+  display    : flex;
+  align-items: center;
+  gap        : $gap-right;
+}
+
+// Live clock
+.datetime {
+  display       : flex;
+  flex-direction: column;
+  align-items   : flex-end;
+}
+
+.time {
+  font-size       : 14px;
+  font-weight     : 600;
+  color           : $color-text-hd;
+  font-variant-numeric: tabular-nums;
+  letter-spacing  : 0.02em;
+  line-height     : 1.2;
+}
+
+.date {
+  font-size  : 10.5px;
+  font-weight: 400;
+  color      : $color-text-sm;
+  margin-top : 1px;
+}
+
+// Pill showing logged-in user
+.user-pill {
+  display      : flex;
+  align-items  : center;
+  gap          : 9px;
+  padding      : 5px 13px 5px 6px;
+  background   : #f9fafb;
+  border       : 1px solid $color-border;
+  border-radius: 100px;
+  cursor       : default;
+  transition   : background $dur;
+
+  &:hover { background: #f3f4f6; }
+}
+
+.user-avatar {
+  width          : 28px;
+  height         : 28px;
+  border-radius  : 50%;
+  // Uses the same indigo-purple gradient as the hero section on home
+  background     : linear-gradient(135deg, #667eea, #764ba2);
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  font-size      : 11px;
+  font-weight    : 700;
+  color          : #fff;
+  flex-shrink    : 0;
+  letter-spacing : 0.02em;
+}
+
+.user-meta {
+  display       : flex;
+  flex-direction: column;
+}
+
+.user-name {
+  font-size  : 12.5px;
+  font-weight: 600;
+  color      : $color-text-md;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.user-role {
+  font-size  : 10px;
+  font-weight: 400;
+  color      : $color-text-sm;
+  margin-top : 1px;
+  white-space: nowrap;
+  text-transform: capitalize;
+}
+
+// Logout button
+.logout-btn {
+  display      : flex;
+  align-items  : center;
+  gap          : 6px;
+  padding      : 6px 14px;
+  border-radius: 8px;
+  background   : $color-logout-bg;
+  border       : 1px solid $color-logout-bdr;
+  color        : $color-logout;
+  font-size    : 12px;
+  font-weight  : 500;
+  font-family  : $font;
+  cursor       : pointer;
+  transition   : background $dur;
+  white-space  : nowrap;
+
+  &:hover { background: #fee2e2; }
 }

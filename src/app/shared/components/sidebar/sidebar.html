@@ -1,10 +1,40 @@
 <div class="sidebar" [class.collapsed]="collapsed">
 
-  <!-- MENU -->
-  <div class="menu">
-    <div class="item" *ngFor="let m of menu" (click)="navigate(m.route)" [class.active]="isActive(m.route)">
-      <span class="icon">{{m.icon}}</span>
-      <span class="text" *ngIf="!collapsed">{{m.name}}</span>
+  <!-- Nav section label -->
+  @if (!collapsed) {
+    <p class="nav-label">MENU</p>
+  }
+
+  <!-- Menu items -->
+  <nav class="menu">
+    @for (m of menu; track m.route) {
+      <div class="item"
+           (click)="navigate(m.route)"
+           [class.active]="isActive(m.route)"
+           [title]="collapsed ? m.name : ''">
+        <span class="item-icon">{{ m.icon }}</span>
+        @if (!collapsed) {
+          <span class="item-text">{{ m.name }}</span>
+        }
+        @if (isActive(m.route) && !collapsed) {
+          <span class="active-dot"></span>
+        }
+      </div>
+    }
+  </nav>
+
+  <div class="spacer"></div>
+
+  <!-- Footer user chip -->
+  <div class="sidebar-footer">
+    <div class="user-chip">
+      <div class="chip-avatar">CS</div>
+      @if (!collapsed) {
+        <div class="chip-info">
+          <span class="chip-name">Clinic Staff</span>
+          <span class="chip-role">Administrator</span>
+        </div>
+      }
     </div>
   </div>
 

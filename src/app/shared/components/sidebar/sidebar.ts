@@ -1,27 +1,23 @@
 import { Component, HostListener, Input } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-sidebar',
-  standalone: true,
-  imports: [CommonModule],
+  selector   : 'app-sidebar',
+  standalone : true,
+  imports    : [],   // @if / @for are built-in in Angular 17+
   templateUrl: './sidebar.html',
-  styleUrls: ['./sidebar.scss']
+  styleUrls  : ['./sidebar.scss']
 })
 export class SidebarComponent {
 
-   @Input() collapsed: boolean = false;
+  @Input() collapsed = false;
 
   menu = [
     { name: 'Dashboard', icon: '🏠', route: '/dashboard' },
-    { name: 'Patients', icon: '🧑', route: '/patients' },
-    { name: 'Services', icon: '🧾', route: '/services' },
-    { name: 'Products', icon: '💊', route: '/products' },
-    { name: 'Revenue', icon: '📈', route: '/revenue' },
-    // { name: 'WhatsApp', icon: '💬', route: '/whatsapp-broadcast' },
-    // { name: 'Expenses', icon: '💰', route: '/expenses' },
-    // { name: 'Users', icon: '👥', route: '/admin' }
+    { name: 'Patients',  icon: '🧑', route: '/patients'  },
+    { name: 'Services',  icon: '🧾', route: '/services'  },
+    { name: 'Products',  icon: '💊', route: '/products'  },
+    { name: 'Revenue',   icon: '📈', route: '/revenue'   },
   ];
 
   constructor(private router: Router) {
@@ -29,14 +25,10 @@ export class SidebarComponent {
   }
 
   @HostListener('window:resize')
-  onResize() {
-    this.checkScreen();
-  }
+  onResize() { this.checkScreen(); }
 
   checkScreen() {
-    if (window.innerWidth < 768) {
-      this.collapsed = true;   // 🔥 auto collapse
-    }
+    this.collapsed = window.innerWidth < 768;
   }
 
   toggle() {

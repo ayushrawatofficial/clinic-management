@@ -12,54 +12,50 @@ import { Auth, signOut } from '@angular/fire/auth';
 import { onAuthStateChanged } from 'firebase/auth';
 import { ConfigService } from '../../../core/config/clinic.service';
 import { UserService } from '../../../core/services/user';
-import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule],
+  imports: [],  // no CommonModule needed — no *ngIf/*ngFor in template
   templateUrl: './header.html',
   styleUrls: ['./header.scss']
 })
 export class HeaderComponent implements OnInit, OnDestroy {
 
   userName = '';
-  role = '';
-  time = '';
-  date = '';
+  role     = '';
+  initials = '';
+  time     = '';
+  date     = '';
 
-  @Output() toggle = new EventEmitter();
-  @Input() collapsed = false;
+  @Output() toggle    = new EventEmitter<void>();
+  @Input()  collapsed = false;
 
-  intervalId: any;
+  private intervalId: any;
 
   constructor(
-    private auth: Auth,
+    private auth       : Auth,
     private userService: UserService,
-    private router: Router,
-    public config: ConfigService,
-    private cdr: ChangeDetectorRef   // 🔥 IMPORTANT
+    private router     : Router,
+    public  config     : ConfigService,
+    private cdr        : ChangeDetectorRef
   ) {}
 
   ngOnInit() {
-
     onAuthStateChanged(this.auth, async (user) => {
       if (user?.email) {
-        const dbUser = await this.userService.getUserByEmail(user.email);
-        this.userName = dbUser?.name || 'User';
-        this.role = dbUser?.role || '';
-        this.cdr.detectChanges(); // 🔥 ensure UI update
+        const dbUser   = await this.userService.getUserByEmail(user.email);
+        this.userName  = dbUser?.name || user.displayName || 'User';
+        this.role      = dbUser?.role || '';
+        this.initials  = this.getInitials(this.userName);
+        this.cdr.detectChanges();
       }
     });
 
     this.updateTime();
-
     this.intervalId = setInterval(() => {
       this.updateTime();
-
-      // 🔥 FORCE UI UPDATE
       this.cdr.detectChanges();
-
     }, 1000);
   }
 
@@ -67,20 +63,15 @@ export class HeaderComponent implements OnInit, OnDestroy {
     clearInterval(this.intervalId);
   }
 
-  updateTime() {
-    const now = new Date();
+  private updateTime() {
+    const now  = new Date();
+    this.time  = now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+    this.date  = now.toLocaleDateString('en-IN',  { day: '2-digit', month: 'short', year: 'numeric' });
+  }
 
-    this.time = now.toLocaleTimeString('en-IN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    });
-
-    this.date = now.toLocaleDateString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric'
-    });
+  /** "Vinod Sharma" → "VS" */
+  private getInitials(name: string): string {
+    return name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
   }
 
   async logout() {
