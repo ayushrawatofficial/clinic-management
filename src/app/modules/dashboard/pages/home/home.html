@@ -71,6 +71,28 @@
           </div>
         </div>
       </div>
+
+      <div class="stat-card repairs-dash-card">
+        <div class="stat-icon repairs-icon-bg">
+          <span>🔧</span>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">{{ stats.repairsInShop }}</h3>
+          <p class="stat-label">Repairs in shop</p>
+          <p class="stat-subdued">{{ stats.repairsInwardMonth }} inward · {{ stats.repairsOutwardMonth }} outward this month</p>
+        </div>
+      </div>
+
+      <div class="stat-card repairs-revenue-dash-card">
+        <div class="stat-icon repairs-rev-icon-bg">
+          <span>🛠️</span>
+        </div>
+        <div class="stat-content">
+          <h3 class="stat-number">₹{{ stats.repairRevenueMonth }}</h3>
+          <p class="stat-label">Repair revenue this month</p>
+          <p class="stat-subdued">From inward invoices (Repairing)</p>
+        </div>
+      </div>
     </div>
   </div>
 

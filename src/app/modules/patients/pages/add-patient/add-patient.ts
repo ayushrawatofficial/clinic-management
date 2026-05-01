@@ -18,6 +18,7 @@ import { ProductService } from '../../../../core/services/product';
 import { VisitService } from '../../../../core/services/visit';
 import { InvoiceService } from '../../../../core/services/invoice';
 import { ToastService } from '../../../../shared/services/toast';
+import { isRepairServiceCategory } from '../../../../shared/constants/repair';
 
 import { SuccessDialogComponent } from '../../../../shared/components/success-dialog/success-dialog';
 import { LoaderComponent } from '../../../../shared/components/loader/loader';
@@ -96,8 +97,11 @@ export class AddPatientComponent implements OnInit, OnChanges {
   ngOnInit() {
     this.patientService.getPatients().subscribe(d => this.patients = d || []);
     this.serviceService.getServices().subscribe(d => {
-      this.services = d || [];
-      this.filteredServices = d || [];
+      // Exclude Repair category services from Patient purchase dropdown
+      const all = d || [];
+      const nonRepair = all.filter(s => !isRepairServiceCategory(s?.category));
+      this.services = nonRepair;
+      this.filteredServices = nonRepair;
     });
     this.productService.getProducts().subscribe(d => {
       this.products = d || [];
@@ -236,8 +240,22 @@ export class AddPatientComponent implements OnInit, OnChanges {
     this.activeDropdown = this.activeDropdown === 'product' ? null : 'product';
   }
 
-  @HostListener('document:click')
-  closeDropdown() {
+  onDialogClick(event: MouseEvent) {
+    // Keep overlay from closing dialog, but allow us to close dropdowns
+    event.stopPropagation();
+    const target = event.target as HTMLElement | null;
+    if (target?.closest?.('.multiselect') || target?.closest?.('.options')) return;
+    this.activeDropdown = null;
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdown(event: MouseEvent) {
+    const path = (event.composedPath?.() || []) as Array<EventTarget>;
+    const clickedInside = path.some(t => {
+      if (!(t instanceof Element)) return false;
+      return Boolean(t.closest?.('.multiselect, .options'));
+    });
+    if (clickedInside) return;
     this.activeDropdown = null;
   }
 
@@ -314,7 +332,7 @@ export class AddPatientComponent implements OnInit, OnChanges {
 
   calculateTotal() {
     const serviceTotal = this.selectedServices.reduce((sum, s) =>
-      sum + Number(s.price || s.finalPrice || 0), 0);
+      sum + Number(s.finalPrice ?? s.price ?? 0), 0);
 
     const productTotal = this.selectedProducts.reduce((sum, p) =>
       sum + (p.price * p.qty), 0);
@@ -343,6 +361,19 @@ export class AddPatientComponent implements OnInit, OnChanges {
       if (this.existingPatient) {
         patientId = this.existingPatient.id;
         patientCode = this.existingPatient.patientCode;
+
+        // If user is adding/editing patient (not purchase-only), persist updated profile fields.
+        if (!this.purchaseOnly) {
+          await this.patientService.updatePatient(patientId, {
+            name: this.name,
+            age: this.age,
+            gender: this.gender,
+            mobile: this.mobile,
+            concerns: this.concerns,
+            referredBy: this.referredBy,
+            updatedAt: new Date().toISOString()
+          });
+        }
       } else {
 
         const patient = {
@@ -353,6 +384,7 @@ export class AddPatientComponent implements OnInit, OnChanges {
           concerns: this.concerns,
           referredBy: this.referredBy,
           createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
           patientCode: `PAT-${Date.now()}`
         };
 
@@ -385,6 +417,8 @@ export class AddPatientComponent implements OnInit, OnChanges {
         patientCode,
         name: this.name,
         mobile: this.mobile,
+        age: this.age,
+        gender: this.gender,
         services,
         products,
         total: this.totalAmount,

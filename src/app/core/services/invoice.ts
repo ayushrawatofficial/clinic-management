@@ -1,5 +1,15 @@
 import { Injectable } from '@angular/core';
-import { Firestore, collection, addDoc, query, where, orderBy, collectionData } from '@angular/fire/firestore';
+import {
+  Firestore,
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+  query,
+  where,
+  orderBy,
+  collectionData
+} from '@angular/fire/firestore';
 
 @Injectable({ providedIn: 'root' })
 export class InvoiceService {
@@ -10,6 +20,11 @@ export class InvoiceService {
   async createInvoice(data: any) {
     const ref = collection(this.firestore, 'invoices');
     return addDoc(ref, data);
+  }
+
+  async updateInvoice(id: string, data: Record<string, unknown>) {
+    const ref = doc(this.firestore, 'invoices', id);
+    return updateDoc(ref, data);
   }
 
  // 🔥 GET INVOICES BY PATIENT CODE

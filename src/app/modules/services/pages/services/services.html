@@ -12,8 +12,6 @@
         <div class="kpi-value">{{ totalServices }}</div>
       </div>
     </div>
-
-    <span></span>
   </div>
 
   <!-- BULK BAR -->
@@ -37,6 +35,14 @@
     <button class="apply-btn" (click)="applyBulkDiscount()">Apply</button>
   </div>
 
+  <div class="search-bar">
+    <input
+      [(ngModel)]="search"
+      (input)="applyFilter()"
+      placeholder="Search name, category, description, price…"
+    />
+  </div>
+
   <!-- TABLE -->
   <div class="table">
 
@@ -54,19 +60,6 @@
       <div>Final</div>
       <div>Expiry</div>
       <div>Actions</div>
-    </div>
-
-    <!-- FILTER -->
-    <div class="row filter">
-      <div></div>
-      <div><input [(ngModel)]="filters.name" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.category" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.description" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.price" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.discount" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.finalPrice" (input)="applyFilter()" /></div>
-      <div></div>
-      <div></div>
     </div>
 
     <!-- 🔥 SCROLLABLE BODY -->
@@ -94,8 +87,8 @@
           </div>
 
           <div class="actions">
-            <button class="edit" (click)="openDialog(s)">Edit</button>
-            <button class="delete" (click)="delete(s.id)">Delete</button>
+            <button type="button" class="btn btn-secondary btn-sm" (click)="openDialog(s)">Edit</button>
+            <button type="button" class="btn btn-primary btn-sm" (click)="delete(s.id)">Delete</button>
           </div>
 
         </div>

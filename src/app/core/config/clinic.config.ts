@@ -1,5 +1,5 @@
 export const CLINIC_CONFIG = {
-  name: 'Speech & Hearing Clinic',
+  name: 'Speech & Hearing Centre',
   subjectLine:'Hearing Aids, Speech Theraphy, Audiomety (Pure Tone, Inpedance), BERA, OAE',
   logo: 'assets/logo.png',
   phone: '+91 9414124900, +91 8209141635',

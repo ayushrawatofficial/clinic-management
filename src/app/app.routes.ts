@@ -62,6 +62,12 @@ export const routes: Routes = [
     import('./modules/revenue/pages/revenue/revenue')
       .then(m => m.RevenueComponent)
 },
+{
+  path: 'repairing',
+  loadComponent: () =>
+    import('./modules/repairing/pages/repairing-list/repairing-list')
+      .then(m => m.RepairingListComponent)
+},
 // {
 //   path: 'whatsapp-broadcast',
 //   loadComponent: () =>

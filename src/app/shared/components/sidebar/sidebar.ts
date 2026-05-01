@@ -17,6 +17,7 @@ export class SidebarComponent {
     { name: 'Patients',  icon: '🧑', route: '/patients'  },
     { name: 'Services',  icon: '🧾', route: '/services'  },
     { name: 'Products',  icon: '💊', route: '/products'  },
+    { name: 'Repairing', icon: '🔧', route: '/repairing' },
     { name: 'Revenue',   icon: '📈', route: '/revenue'   },
   ];
 

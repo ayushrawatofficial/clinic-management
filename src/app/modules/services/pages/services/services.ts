@@ -26,6 +26,8 @@ export class ServicesComponent implements OnInit, OnDestroy {
 
   dialogLoading = false;
 
+  search = '';
+
   filters = {
     name: '',
     category: '',
@@ -113,7 +115,17 @@ export class ServicesComponent implements OnInit, OnDestroy {
   }
 
   applyFilter() {
+    const term = (this.search || '').trim().toLowerCase();
     this.filtered = this.services.filter(s =>
+      (
+        !term ||
+        String(s?.name ?? '').toLowerCase().includes(term) ||
+        String(s?.category ?? '').toLowerCase().includes(term) ||
+        String(s?.description ?? '').toLowerCase().includes(term) ||
+        String(s?.price ?? '').toLowerCase().includes(term) ||
+        String(s?.discountValue ?? '').toLowerCase().includes(term) ||
+        String(s?.finalPrice ?? '').toLowerCase().includes(term)
+      ) &&
       (!this.filters.name || s.name?.toLowerCase().includes(this.filters.name.toLowerCase())) &&
       (!this.filters.category || s.category?.toLowerCase().includes(this.filters.category.toLowerCase())) &&
       (!this.filters.price || String(s.price).includes(this.filters.price)) &&

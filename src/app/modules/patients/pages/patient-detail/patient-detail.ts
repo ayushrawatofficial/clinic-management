@@ -1,4 +1,4 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -8,6 +8,7 @@ import { InvoiceService } from '../../../../core/services/invoice';
 import { LoaderService } from '../../../../shared/services/loader';
 import { InvoicePrintService } from '../../../../shared/services/invoice-print.service';
 import { AddPatientComponent } from '../add-patient/add-patient';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-patient-detail',
@@ -16,15 +17,18 @@ import { AddPatientComponent } from '../add-patient/add-patient';
   templateUrl: './patient-detail.html',
   styleUrls: ['./patient-detail.scss']
 })
-export class PatientDetailComponent implements OnInit {
+export class PatientDetailComponent implements OnInit, OnDestroy {
 
   patientCode = '';
   patient: any = null;
   invoices: any[] = [];
+  filteredInvoices: any[] = [];
   visibleInvoices: any[] = [];
   readonly pageSize = 100;
   invoiceDisplayedCount = 100;
   showPurchaseDialog = false;
+  invoiceSearch = '';
+  private sub = new Subscription();
 
   constructor(
     private route: ActivatedRoute,
@@ -36,29 +40,41 @@ export class PatientDetailComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.patientCode = this.route.snapshot.paramMap.get('code') || '';
-
-    this.loadPatient();
-    this.loadInvoices();
+    this.sub.add(
+      this.route.paramMap.subscribe(params => {
+        this.patientCode = params.get('code') || '';
+        this.patient = null;
+        this.invoices = [];
+        this.visibleInvoices = [];
+        this.loadPatient();
+        this.loadInvoices();
+      })
+    );
   }
 
   loadPatient() {
     this.loader.show();
-    this.patientService.getPatients().subscribe((data: any[]) => {
+    const s = this.patientService.getPatients().subscribe((data: any[]) => {
       this.patient = data.find(p => p.patientCode === this.patientCode);
-        this.loader.hide();
-      this.cdr.detectChanges();
-    });
-  }
-
-  loadInvoices() {
-    this.loader.show();
-    this.invoiceService.getInvoicesByPatientCode(this.patientCode).subscribe((data: any[]) => {
-      this.invoices = (data || []).sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
-      this.resetVisibleInvoices();
       this.loader.hide();
       this.cdr.detectChanges();
     });
+    this.sub.add(s);
+  }
+
+  loadInvoices() {
+    if (!this.patientCode) return;
+
+    // Use a single query and filter client-side (reliable on hard refresh).
+    this.loader.show();
+    const s = this.invoiceService.getAllInvoices().subscribe((all: any[]) => {
+      const filtered = (all || []).filter(inv => inv?.patientCode === this.patientCode);
+      this.invoices = filtered.sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
+      this.applyInvoiceFilter();
+      this.loader.hide();
+      this.cdr.detectChanges();
+    });
+    this.sub.add(s);
   }
 
   onInvoiceTableScroll(event: Event) {
@@ -72,14 +88,41 @@ export class PatientDetailComponent implements OnInit {
   // WhatsApp broadcast moved to dedicated page
 
   loadMoreInvoices() {
-    if (this.invoiceDisplayedCount >= this.invoices.length) return;
-    this.invoiceDisplayedCount = Math.min(this.invoiceDisplayedCount + this.pageSize, this.invoices.length);
-    this.visibleInvoices = this.invoices.slice(0, this.invoiceDisplayedCount);
+    if (this.invoiceDisplayedCount >= this.filteredInvoices.length) return;
+    this.invoiceDisplayedCount = Math.min(this.invoiceDisplayedCount + this.pageSize, this.filteredInvoices.length);
+    this.visibleInvoices = this.filteredInvoices.slice(0, this.invoiceDisplayedCount);
   }
 
   private resetVisibleInvoices() {
-    this.invoiceDisplayedCount = Math.min(this.pageSize, this.invoices.length);
-    this.visibleInvoices = this.invoices.slice(0, this.invoiceDisplayedCount);
+    this.invoiceDisplayedCount = Math.min(this.pageSize, this.filteredInvoices.length);
+    this.visibleInvoices = this.filteredInvoices.slice(0, this.invoiceDisplayedCount);
+  }
+
+  applyInvoiceFilter() {
+    const term = (this.invoiceSearch || '').trim().toLowerCase();
+    if (!term) {
+      this.filteredInvoices = [...this.invoices];
+      this.resetVisibleInvoices();
+      return;
+    }
+
+    const includes = (v: any) => String(v ?? '').toLowerCase().includes(term);
+    this.filteredInvoices = this.invoices.filter(inv => {
+      const services = (inv?.services || []).map((s: any) => s?.name).join(', ');
+      const products = (inv?.products || []).map((p: any) => p?.name).join(', ');
+      return (
+        includes(inv?.invoiceNumber) ||
+        includes(inv?.paymentMode) ||
+        includes(inv?.total) ||
+        includes(inv?.createdAt) ||
+        includes(inv?.date) ||
+        includes(services) ||
+        includes(products)
+      );
+    });
+
+    this.filteredInvoices.sort((a, b) => this.getLatestDateMs(b) - this.getLatestDateMs(a));
+    this.resetVisibleInvoices();
   }
 
   private getLatestDateMs(record: any): number {
@@ -89,12 +132,6 @@ export class PatientDetailComponent implements OnInit {
   }
 
   // WhatsApp broadcast moved to dedicated page
-
-  // 🔥 SELECT INVOICE
-  // 🔥 SELECT INVOICE THEN PRINT
-  previewInvoice(inv: any) {
-    this.invoicePrint.previewInvoice(inv, `Invoice-${inv.name || 'Invoice'}`);
-  }
 
   printInvoice(inv: any) {
     this.invoicePrint.printInvoice(inv, `Invoice-${inv.name || 'Invoice'}`);
@@ -129,5 +166,9 @@ export class PatientDetailComponent implements OnInit {
   getProductsList(products: any[]): string {
     if (!products || products.length === 0) return '-';
     return products.map(p => p.name).join(', ');
+  }
+
+  ngOnDestroy(): void {
+    this.sub.unsubscribe();
   }
 }

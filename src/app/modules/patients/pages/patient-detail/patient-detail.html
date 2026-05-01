@@ -35,6 +35,14 @@
     <button type="button" class="active">Invoices</button>
   </div>
 
+  <div class="search-bar">
+    <input
+      [(ngModel)]="invoiceSearch"
+      (input)="applyInvoiceFilter()"
+      placeholder="Search invoice, services, products, payment, date, total…"
+    />
+  </div>
+
   <div class="table">
 
     <div class="row header">
@@ -58,10 +66,9 @@
         <div>₹{{ i.total }}</div>
 
         <div class="actions">
-          <span title="Preview" (click)="previewInvoice(i); $event.stopPropagation()">🔍</span>
-          <span title="Print" (click)="printInvoice(i); $event.stopPropagation()">🖨</span>
-          <span title="Download PDF" (click)="downloadInvoice(i); $event.stopPropagation()">📄</span>
-          <span title="WhatsApp" (click)="handleWhatsapp(i); $event.stopPropagation()">📱</span>
+          <button type="button" class="btn btn-secondary btn-sm" title="Print" (click)="printInvoice(i); $event.stopPropagation()">Print</button>
+          <button type="button" class="btn btn-secondary btn-sm" title="Download PDF" (click)="downloadInvoice(i); $event.stopPropagation()">PDF</button>
+          <button type="button" class="btn btn-primary btn-sm" title="WhatsApp" (click)="handleWhatsapp(i); $event.stopPropagation()">WhatsApp</button>
         </div>
 
       </div>

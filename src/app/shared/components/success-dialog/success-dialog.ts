@@ -28,10 +28,6 @@ export class SuccessDialogComponent {
     event.target.style.display = 'none';
   }
 
-  handlePreview() {
-    this.invoicePrint.previewInvoice(this.patient, `Invoice-${this.patient?.name || 'Invoice'}`);
-  }
-
   handlePrint() {
     this.invoicePrint.printInvoice(this.patient, `Invoice-${this.patient?.name || 'Invoice'}`);
   }

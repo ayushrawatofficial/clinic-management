@@ -2,34 +2,69 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  min-height: 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 html, body {
   height: 100%;
-  overflow: hidden; /* 🔥 stops page scroll */
+  overflow: hidden; /* page scroll stays off — regions scroll internally */
+}
+
+app-header,
+app-footer {
+  flex-shrink: 0;
 }
 
 /* BELOW HEADER */
 .body {
   display: flex;
   flex: 1;
+  min-height: 0;
   overflow: hidden;
+  max-width: 100%;
 }
 
 .content {
   flex: 1;
-  overflow: auto;
+  min-height: 0;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   align-items: stretch;
+  max-width: 100%;
 }
 
-.content > * {
-  padding: 0 ;
-  width: 100%;
+.content-shell {
   flex: 1;
   min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0 clamp(18px, 2.8vw, 28px);
+  padding-bottom: 16px;
+}
+
+.content-shell > router-outlet {
+  flex: 0 0 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.content-shell > *:not(router-outlet) {
+  flex: 1 1 0%;
+  min-height: 0;
   min-width: 0;
+  width: 100%;
+  max-width: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 app-loader,

@@ -4,6 +4,7 @@ import { AuthService } from '../../../../core/services/auth';
 import { UserService } from '../../../../core/services/user';
 import { Router } from '@angular/router';
 import { CLINIC_CONFIG } from '../../../../core/config/clinic.config';
+import { ToastService } from '../../../../shared/services/toast';
 
 @Component({
   selector: 'app-login',
@@ -34,7 +35,8 @@ export class LoginComponent {
   constructor(
     private auth: AuthService,
     private userService: UserService,
-    private router: Router
+    private router: Router,
+    private toast: ToastService
   ) {}
 
   /** Returns initials from a full name — e.g. "Akshit Dadhich" → "AD" */
@@ -49,7 +51,7 @@ export class LoginComponent {
 
   async login() {
     if (!this.email || !this.password) {
-      alert('Please enter your email and password.');
+      this.toast.show('Enter email and password', 'warning');
       return;
     }
 
@@ -60,7 +62,7 @@ export class LoginComponent {
       const user = await this.userService.getUserByEmail(firebaseUser.email!);
 
       if (!user) {
-        alert('User not found in system.');
+        this.toast.show('User not found in system', 'error');
         return;
       }
 
@@ -71,13 +73,13 @@ export class LoginComponent {
       }
 
     } catch (err: any) {
-      alert(err.message ?? 'Login failed. Please try again.');
+      this.toast.show(err?.message ?? 'Login failed. Please try again.', 'error');
     } finally {
       this.loading = false;
     }
   }
 
   forgotPassword() {
-    alert(`Contact admin at ${this.config.email} to reset your password.`);
+    this.toast.show(`Contact admin at ${this.config.email} to reset your password.`, 'warning');
   }
 }

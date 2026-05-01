@@ -68,11 +68,22 @@ export class ProductListComponent implements OnInit {
   // 🔥 FILTER LOGIC
   applyFilter() {
 
-    const term = this.search.toLowerCase();
+    const term = (this.search || '').trim().toLowerCase();
 
     this.filtered = this.products.filter(p => {
 
       const status = this.getStatus(p);
+
+      const anyColumnMatch =
+        !term ||
+        String(p?.name ?? '').toLowerCase().includes(term) ||
+        String(p?.description ?? '').toLowerCase().includes(term) ||
+        String(p?.price ?? '').toLowerCase().includes(term) ||
+        String(p?.stock ?? '').toLowerCase().includes(term) ||
+        String(status ?? '').toLowerCase().includes(term) ||
+        (status === 'ok' && 'available'.includes(term)) ||
+        (status === 'low' && 'low'.includes(term)) ||
+        (status === 'out' && 'out'.includes(term));
 
       return (
         (!this.filters.name || p.name?.toLowerCase().includes(this.filters.name.toLowerCase())) &&
@@ -80,11 +91,7 @@ export class ProductListComponent implements OnInit {
         (!this.filters.price || p.price?.toString().includes(this.filters.price)) &&
         (!this.filters.stock || p.stock?.toString().includes(this.filters.stock)) &&
         (!this.filters.status || status === this.filters.status) &&
-
-        (
-          p.name?.toLowerCase().includes(term) ||
-          p.description?.toLowerCase().includes(term)
-        )
+        anyColumnMatch
       );
 
     });

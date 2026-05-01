@@ -6,7 +6,7 @@
     </div>
 
     <div class="stats">
-      <div class="kpi-grid kpi-grid--3">
+      <div class="kpi-grid">
         <div class="kpi-card kpi-blue">
           <div class="kpi-title">Current Financial Year</div>
           <div class="kpi-value">₹{{ currentFinancialYearRevenue }}</div>
@@ -21,6 +21,11 @@
           <div class="kpi-title">Today</div>
           <div class="kpi-value">₹{{ todayRevenue }}</div>
           <div class="kpi-sub">{{ today | date:'dd MMM yyyy' }}</div>
+        </div>
+        <div class="kpi-card kpi-amber">
+          <div class="kpi-title">Repairing (in range)</div>
+          <div class="kpi-value">₹{{ repairTaggedTotal }}</div>
+          <div class="kpi-sub">{{ repairTaggedFiltered.length }} inward invoices · part of totals above</div>
         </div>
       </div>
     </div>
@@ -102,6 +107,28 @@
 
     <div class="summary-grid two-col">
       <div class="summary-card">
+        <h3>Repairing (Inward invoices in range)</h3>
+        <div class="summary-table">
+          <div class="summary-row head repair-row">
+            <span>Invoice No</span>
+            <span>Date</span>
+            <span>Amount</span>
+            <span>Payment</span>
+          </div>
+          <div class="no-data" *ngIf="repairTaggedFiltered.length === 0">No repairing inward invoices found in selected range.</div>
+          <div class="summary-row repair-row" *ngFor="let inv of repairTaggedFiltered">
+            <span>{{ inv.invoiceNumber || '—' }}</span>
+            <span>{{ inv.createdAt ? (inv.createdAt | date:'dd MMM yyyy') : (inv.date | date:'dd MMM yyyy') }}</span>
+            <span>₹{{ inv.total || 0 }}</span>
+            <span>{{ inv.paymentMode || '—' }}</span>
+          </div>
+        </div>
+        <div class="hint" style="margin-top: 10px;">
+          Total: <b>₹{{ repairTaggedTotal }}</b> · Count: <b>{{ repairTaggedFiltered.length }}</b>
+        </div>
+      </div>
+
+      <div class="summary-card">
         <h3>Payment Mode-wise Revenue</h3>
         <div class="summary-table">
           <div class="summary-row head payment-row">
@@ -117,7 +144,9 @@
           </div>
         </div>
       </div>
+    </div>
 
+    <div class="summary-grid two-col">
       <div class="summary-card">
         <h3>Top 10 Services / Products</h3>
         <div class="top-split">

@@ -1,7 +1,19 @@
-<div class="toast"
-     *ngIf="toast.toast$ | async as t"
-     [ngClass]="t.type">
+<div
+  class="toast"
+  *ngIf="toast.toast$ | async as t"
+  [ngClass]="t.type"
+  role="status"
+  aria-live="polite"
+>
+  <div class="toast-inner">
+    <div class="toast-icon" aria-hidden="true">
+      <span *ngIf="t.type === 'success'">✓</span>
+      <span *ngIf="t.type === 'warning'">!</span>
+      <span *ngIf="t.type === 'error'">×</span>
+    </div>
 
-  {{ t.message }}
+    <div class="toast-message">{{ t.message }}</div>
+  </div>
 
+  <div class="toast-progress" aria-hidden="true"></div>
 </div>

@@ -107,9 +107,19 @@ export class PatientListComponent implements OnInit {
 
   applyFilter() {
 
-    const term = (this.search || '').toLowerCase();
+    const term = (this.search || '').trim().toLowerCase();
 
     this.filtered = this.patients.filter(p => {
+
+      const anyColumnMatch =
+        !term ||
+        String(p?.patientCode ?? '').toLowerCase().includes(term) ||
+        String(p?.name ?? '').toLowerCase().includes(term) ||
+        String(p?.mobile ?? '').toLowerCase().includes(term) ||
+        String(p?.age ?? '').toLowerCase().includes(term) ||
+        String(p?.gender ?? '').toLowerCase().includes(term) ||
+        String(p?.totalInvoices ?? '').toLowerCase().includes(term) ||
+        (p?.lastVisit ? new Date(p.lastVisit).toLocaleDateString().toLowerCase().includes(term) : false);
 
       return (
         (!this.filters.id || p.patientCode?.toLowerCase().includes(this.filters.id.toLowerCase())) &&
@@ -117,12 +127,7 @@ export class PatientListComponent implements OnInit {
         (!this.filters.mobile || p.mobile?.includes(this.filters.mobile)) &&
         (!this.filters.age || p.age?.toString().includes(this.filters.age)) &&
         (!this.filters.gender || p.gender?.toLowerCase().includes(this.filters.gender.toLowerCase())) &&
-
-        (
-          (p.name || '').toLowerCase().includes(term) ||
-          (p.mobile || '').includes(term) ||
-          (p.patientCode || '').toLowerCase().includes(term)
-        )
+        anyColumnMatch
       );
 
     });
@@ -171,6 +176,49 @@ export class PatientListComponent implements OnInit {
   closeDialog() {
     this.showDialog = false;
     this.loadData();
+  }
+
+  downloadCsv() {
+    const data = (this.filtered?.length ? this.filtered : this.patients);
+    if (!data || data.length === 0) {
+      this.toast.show('No patients to export', 'warning');
+      return;
+    }
+
+    const headers = ['ID', 'Name', 'Mobile', 'Age', 'Gender', 'Total Invoices', 'Last Visit'];
+    const escape = (v: any) => {
+      const s = String(v ?? '');
+      // CSV escape: wrap in quotes if contains comma/quote/newline, and double quotes
+      if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+      return s;
+    };
+
+    const rows = data.map((p: any) => ([
+      p.patientCode || '',
+      p.name || '',
+      p.mobile || '',
+      p.age ?? '',
+      p.gender || '',
+      p.totalInvoices ?? '',
+      p.lastVisit ? new Date(p.lastVisit).toLocaleString('en-IN') : ''
+    ]));
+
+    const csv = [
+      headers.join(','),
+      ...rows.map(r => r.map(escape).join(','))
+    ].join('\n');
+
+    this.toast.show('Downloading started…', 'warning');
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `patients-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
   }
 
   get totalPatients() {

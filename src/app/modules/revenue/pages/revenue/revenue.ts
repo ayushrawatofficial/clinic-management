@@ -125,6 +125,7 @@ export class RevenueComponent implements OnInit {
       ['Detailed Revenue Report'],
       ['Generated At', new Date().toLocaleString()],
       ['Date Filter', this.fromDate && this.toDate ? `${this.fromDate} to ${this.toDate}` : 'All Dates'],
+      ['Repairing (in range)', 'Inward invoices', this.repairTaggedFiltered.length, `₹${this.repairTaggedTotal}`],
       [],
       ['Month-wise Revenue'],
       ['Month', 'Invoices', 'Total Revenue'],
@@ -154,6 +155,18 @@ export class RevenueComponent implements OnInit {
       ['Product', 'Qty', 'Total Revenue'],
       ...this.topProducts.map(item => [item.name, item.qty, item.total]),
       [],
+      [],
+      ['Repair inward invoices (Finance / Repairing module)'],
+      ['Invoice No', 'Date', 'Amount', 'Payment'],
+      ...this.repairTaggedForReport.map(inv => [
+        inv.invoiceNumber || '',
+        this.getRepairReportDate(inv),
+        Number(inv.total || 0),
+        String(inv.paymentMode || '')
+      ]),
+      ['Repair inward subtotal count', '', this.repairTaggedForReport.length, ''],
+      ['Repair inward subtotal amount', '', this.repairTaggedTotal],
+      [],
       ['Grand Total Revenue', '', this.grandTotalRevenue]
     ];
 
@@ -174,6 +187,29 @@ export class RevenueComponent implements OnInit {
 
   get grandTotalRevenue(): number {
     return this.sumInvoices(this.filteredInvoices);
+  }
+
+  /** Invoices tagged at creation from Repairing inward flow (included in grand total). */
+  get repairTaggedFiltered(): any[] {
+    return this.filteredInvoices.filter(inv => inv?.source === 'repair_inward');
+  }
+
+  get repairTaggedTotal(): number {
+    return this.sumInvoices(this.repairTaggedFiltered);
+  }
+
+  /** Same as filtered repair list; explicit name for report generation. */
+  get repairTaggedForReport(): any[] {
+    return this.repairTaggedFiltered;
+  }
+
+  private getRepairReportDate(inv: any): string {
+    const raw = inv?.createdAt ?? inv?.date;
+    try {
+      return new Date(raw).toISOString().slice(0, 10);
+    } catch {
+      return '';
+    }
   }
 
   get filteredInvoices(): any[] {

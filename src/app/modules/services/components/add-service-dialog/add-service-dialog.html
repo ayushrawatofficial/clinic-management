@@ -1,84 +1,76 @@
-<div class="overlay" (click)="close()"></div>
+<div class="dialog-root">
+  <div class="overlay" (click)="close()"></div>
 
-<div class="dialog" (click)="$event.stopPropagation()">
-
-  <!-- HEADER -->
-  <div class="header">
-    <h2>{{ data ? 'Edit Service' : 'Add Service' }}</h2>
-    <span class="close" (click)="close()">✕</span>
-  </div>
-
-  <!-- BODY -->
-  <div class="body">
-
-    <!-- ROW 1 -->
-    <div class="grid">
-      <div class="field">
-        <label>Service Name *</label>
-        <input [(ngModel)]="name" />
-        <div class="error" *ngIf="submitted && (!name || name.trim() === '')">
-  Name is required
-</div>
-      </div>
-
-      <div class="field">
-        <label>Category</label>
-        <input [(ngModel)]="category" />
-      </div>
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dlg-head">
+      <h2>{{ data ? 'Edit Service' : 'Add Service' }}</h2>
+      <button type="button" class="ghost" (click)="close()">✕</button>
     </div>
 
-    <!-- DESCRIPTION -->
-    <div class="field full">
-      <label>Description</label>
-      <textarea [(ngModel)]="description"></textarea>
-    </div>
+    <div class="dlg-body">
+      <div class="dlg-grid">
+        <label class="field">
+          Service Name *
+          <input [(ngModel)]="name" placeholder="Service name" />
+          <div class="error" *ngIf="submitted && (!name || name.trim() === '')">Name is required</div>
+        </label>
 
-    <!-- ROW 2 -->
-    <div class="grid three">
-      <div class="field">
-        <label>Price *</label>
-        <input type="number" [(ngModel)]="price" />
-        <div class="error" *ngIf="submitted && (!price || price <= 0)">
-          Price is required
+        <label class="field">
+          Category
+          <select [(ngModel)]="category">
+            <option value="">Select…</option>
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+        </label>
+      </div>
+
+      <label class="field">
+        Description
+        <textarea rows="3" [(ngModel)]="description" placeholder="Optional notes…"></textarea>
+      </label>
+
+      <div class="dlg-grid three">
+        <label class="field">
+          Price *
+          <input type="number" [(ngModel)]="price" placeholder="0" />
+          <div class="error" *ngIf="submitted && (!price || price <= 0)">Price is required</div>
+        </label>
+
+        <label class="field">
+          Discount
+          <input type="number" [(ngModel)]="discountValue" placeholder="0" />
+        </label>
+
+        <label class="field">
+          Type
+          <select [(ngModel)]="discountType">
+            <option value="percent">%</option>
+            <option value="flat">₹</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="dlg-grid">
+        <label class="field">
+          Discount expiry
+          <input type="date" [(ngModel)]="discountExpiry" [min]="today" />
+        </label>
+
+        <div class="field">
+          Final Price
+          <div class="total-strip">
+            <span>Final</span>
+            <b>₹{{ finalPrice }}</b>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ROW 3 -->
-    <div class="grid three">
-      <div class="field">
-        <label>Discount</label>
-        <input type="number" [(ngModel)]="discountValue" />
-      </div>
-
-            <div class="field small">
-        <label>Type</label>
-        <select [(ngModel)]="discountType">
-          <option value="percent">%</option>
-          <option value="flat">₹</option>
-        </select>
-      </div>
-
-      <div class="field">
-    <label>Expiry Date</label>
-    <input type="date" [(ngModel)]="discountExpiry" [min]="today" />
-  </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+      <button type="button" class="btn btn-primary" (click)="save()" [disabled]="loading">
+        {{ loading ? (data ? 'Updating...' : 'Saving...') : (data ? 'Update Service' : 'Save Service') }}
+      </button>
     </div>
-
-    <!-- FINAL -->
-    <div class="final-box">
-      Final Price: ₹ {{ finalPrice }}
-    </div>
-
   </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    <button class="cancel" (click)="close()">Cancel</button>
-
-    <button class="save" (click)="save()" [disabled]="loading">
-      {{ loading ? (data ? 'Updating...' : 'Saving...') : (data ? 'Update Service' : 'Save Service') }}
-    </button>
-  </div>
-
 </div>

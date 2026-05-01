@@ -1,11 +1,19 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
 .page {
   padding: 20px;
-  height: 80vh;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   display: flex;
   flex-direction: column;
   background: #f8fafc;
-  min-height: 0;
 }
 
 .grid {

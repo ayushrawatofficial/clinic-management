@@ -1,14 +1,18 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
   width: 100%;
-  height: 100%;
 }
 
 .page {
   padding: 20px;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
   width: 100%;
   max-width: 100%;
@@ -25,7 +29,8 @@
 
 .content-scroll {
   flex: 1;
-  overflow: auto;
+  min-height: 0;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -90,6 +95,10 @@
 
 .payment-row {
   grid-template-columns: 1.5fr 0.8fr 1fr;
+}
+
+.repair-row {
+  grid-template-columns: 1.1fr 1.1fr 0.8fr 0.9fr;
 }
 
 .summary-row.head {

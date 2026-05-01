@@ -17,9 +17,14 @@
         <div class="kpi-value">{{ lowStock }}</div>
       </div>
     </div>
+  </div>
 
-    <span></span>
-
+  <div class="search-bar">
+    <input
+      [(ngModel)]="search"
+      (input)="applyFilter()"
+      placeholder="Search name, description, price, stock, status…"
+    />
   </div>
 
   <!-- TABLE -->
@@ -33,21 +38,6 @@
       <div>Stock</div>
       <div>Status</div>
       <div>Actions</div>
-    </div>
-
-    <!-- 🔥 FILTER ROW (LIKE SERVICES) -->
-    <div class="row filter">
-      <div><input [(ngModel)]="filters.name" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.desc" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.price" (input)="applyFilter()" /></div>
-      <div><input [(ngModel)]="filters.stock" (input)="applyFilter()" /></div>
-      <div><select [(ngModel)]="filters.status" (change)="applyFilter()">
-        <option value="">All</option>
-        <option value="ok">Available</option>
-        <option value="low">Low</option>
-        <option value="out">Out</option>
-      </select></div>
-      <div></div>
     </div>
 
     <!-- DATA -->
@@ -66,14 +56,18 @@
         <div>{{ p.stock }}</div>
 
         <div>
-          <span *ngIf="getStatus(p) === 'ok'" class="ok">Available</span>
-          <span *ngIf="getStatus(p) === 'low'" class="low">Low</span>
-          <span *ngIf="getStatus(p) === 'out'" class="out">Out</span>
+          <span
+            class="badge"
+            [class.badge-ok]="getStatus(p) === 'ok'"
+            [class.badge-low]="getStatus(p) === 'low'"
+            [class.badge-out]="getStatus(p) === 'out'">
+            {{ getStatus(p) === 'ok' ? 'Available' : (getStatus(p) === 'low' ? 'Low' : 'Out') }}
+          </span>
         </div>
 
         <div class="actions">
-          <button class="edit" (click)="openDialog(p)">Edit</button>
-          <button class="delete" (click)="delete(p)">Delete</button>
+          <button type="button" class="btn btn-secondary btn-sm" (click)="openDialog(p)">Edit</button>
+          <button type="button" class="btn btn-primary btn-sm" (click)="delete(p)">Delete</button>
         </div>
 
       </div>

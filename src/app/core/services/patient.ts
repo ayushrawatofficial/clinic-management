@@ -3,6 +3,8 @@ import {
   Firestore,
   collection,
   addDoc,
+  doc,
+  updateDoc,
   collectionData
 } from '@angular/fire/firestore';
 
@@ -25,5 +27,11 @@ export class PatientService {
   async addPatient(data: any) {
     const ref = collection(this.firestore, 'patients');
     return await addDoc(ref, data);
+  }
+
+  // 🔥 UPDATE PATIENT
+  async updatePatient(id: string, data: Record<string, unknown>) {
+    const ref = doc(this.firestore, 'patients', id);
+    return updateDoc(ref, data);
   }
 }

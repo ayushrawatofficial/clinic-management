@@ -1,82 +1,66 @@
-<div class="overlay" (click)="close()"></div>
+<div class="dialog-root">
+  <div class="overlay" (click)="close()"></div>
 
-<div class="dialog" (click)="$event.stopPropagation()">
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dlg-head">
+      <h2>{{ isEdit ? 'Edit Product' : 'Add Product' }}</h2>
+      <button type="button" class="ghost" (click)="close()">✕</button>
+    </div>
 
-  <!-- HEADER -->
-  <div class="header">
-    <h3>{{ isEdit ? 'Edit Product' : 'Add Product' }}</h3>
-    <span (click)="close()">✕</span>
+    <div class="dlg-body">
+      <div class="dlg-grid">
+        <label class="field">
+          Product Name *
+          <input
+            [(ngModel)]="name"
+            placeholder="Product name"
+            [class.error-border]="submitted && (!name.trim() || isDuplicate())"
+          />
+          <div class="error" *ngIf="submitted && !name.trim()">Product name is required</div>
+          <div class="error" *ngIf="submitted && isDuplicate()">Product already exists</div>
+        </label>
+
+        <label class="field">
+          Price *
+          <input
+            type="number"
+            [(ngModel)]="price"
+            placeholder="0"
+            [class.error-border]="submitted && (!price || price <= 0)"
+          />
+          <div class="error" *ngIf="submitted && (!price || price <= 0)">Enter valid price</div>
+        </label>
+      </div>
+
+      <label class="field">
+        Description
+        <textarea rows="3" [(ngModel)]="description" placeholder="Optional notes…"></textarea>
+      </label>
+
+      <div class="dlg-grid">
+        <label class="field">
+          Stock *
+          <input
+            type="number"
+            [(ngModel)]="stock"
+            placeholder="0"
+            [class.error-border]="submitted && (stock === null || stock < 0)"
+          />
+          <div class="error" *ngIf="submitted && (stock === null || stock < 0)">Invalid stock value</div>
+        </label>
+
+        <label class="field">
+          Low Stock Alert
+          <input type="number" [(ngModel)]="lowStock" />
+        </label>
+      </div>
+    </div>
+
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-secondary" (click)="close()">Cancel</button>
+      <button type="button" class="btn btn-primary" (click)="save()">
+        {{ isEdit ? 'Update' : 'Save' }}
+      </button>
+    </div>
   </div>
-
-  <!-- BODY -->
-  <div class="body">
-
-    <!-- NAME -->
-    <div class="field">
-      <label>Product Name *</label>
-      <input
-        [(ngModel)]="name"
-        [class.error-border]="submitted && (!name.trim() || isDuplicate())"
-      />
-
-      <div class="error" *ngIf="submitted && !name.trim()">
-        Product name is required
-      </div>
-
-      <div class="error" *ngIf="submitted && isDuplicate()">
-        Product already exists
-      </div>
-    </div>
-
-    <!-- PRICE -->
-    <div class="field">
-      <label>Price *</label>
-      <input
-        type="number"
-        [(ngModel)]="price"
-        [class.error-border]="submitted && (!price || price <= 0)"
-      />
-
-      <div class="error" *ngIf="submitted && (!price || price <= 0)">
-        Enter valid price
-      </div>
-    </div>
-
-    <!-- DESCRIPTION -->
-    <div class="field full">
-      <label>Description</label>
-      <textarea [(ngModel)]="description"></textarea>
-    </div>
-
-    <!-- STOCK -->
-    <div class="field">
-      <label>Stock *</label>
-      <input
-        type="number"
-        [(ngModel)]="stock"
-        [class.error-border]="submitted && (stock === null || stock < 0)"
-      />
-
-      <div class="error" *ngIf="submitted && (stock === null || stock < 0)">
-        Invalid stock value
-      </div>
-    </div>
-
-    <!-- LOW STOCK -->
-    <div class="field">
-      <label>Low Stock Alert</label>
-      <input type="number" [(ngModel)]="lowStock" />
-    </div>
-
-  </div>
-
-  <!-- FOOTER -->
-  <div class="footer">
-    <button class="cancel" (click)="close()">Cancel</button>
-
-    <button class="save" (click)="save()">
-      {{ isEdit ? 'Update' : 'Save' }}
-    </button>
-  </div>
-
 </div>

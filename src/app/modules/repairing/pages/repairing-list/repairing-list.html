@@ -1,0 +1,231 @@
+<div class="page">
+  <div class="page-top">
+    <div class="page-chip">Operations / Repairing</div>
+    <button type="button" class="btn btn-primary" (click)="openInward()">New inward</button>
+  </div>
+
+  <div class="header-bar">
+    <div class="kpi-grid kpi-grid--3">
+      <div class="kpi-card kpi-amber">
+        <div class="kpi-title">In shop</div>
+        <div class="kpi-value">{{ kpis.inShop }}</div>
+        <div class="kpi-sub">Awaiting outward</div>
+      </div>
+      <div class="kpi-card kpi-blue">
+        <div class="kpi-title">This month inward</div>
+        <div class="kpi-value">{{ kpis.inwardThisMonth }}</div>
+      </div>
+      <div class="kpi-card kpi-green">
+        <div class="kpi-title">This month outward</div>
+        <div class="kpi-value">{{ kpis.outThisMonth }}</div>
+      </div>
+    </div>
+  </div>
+
+  <p class="repair-hint" *ngIf="repairServices.length === 0">
+    Add services under category <strong>Repair</strong> in <a routerLink="/services">Catalog / Services</a> to populate tariffs here.
+  </p>
+
+  <div class="search-bar">
+    <input [(ngModel)]="search" placeholder="Search invoice, model, serial, issue, mobile..." />
+  </div>
+
+  <div class="table">
+    <div class="row header">
+      <div>Status</div>
+      <div>Invoice</div>
+      <div>Inward</div>
+      <div>Outward</div>
+      <div>Warranty</div>
+      <div>Service</div>
+      <div>Total</div>
+      <div>Delivery</div>
+      <div>Actions</div>
+    </div>
+    <div class="table-body">
+      <ng-container *ngIf="filteredJobs.length > 0; else empty">
+        <div class="row" *ngFor="let job of filteredJobs">
+          <div><span class="badge" [class.badge-out]="job.status === 'outward'">{{ statusLabel(job) }}</span></div>
+          <div class="mono">{{ job.inwardInvoiceNumber }}</div>
+          <div>{{ formatDate(job.inwardDate) }}</div>
+          <div>{{ formatDate(job.outwardDate) }}</div>
+          <div>{{ warrantyLabel(job.warrantyType) }}</div>
+          <div class="ellipsis" [title]="job.serviceName">{{ job.serviceName }}</div>
+          <div>₹{{ job.total | number:'1.0-2' }}</div>
+          <div>{{ formatDate(job.expectedDeliveryDate) }}</div>
+          <div class="actions">
+            <button type="button" class="btn btn-secondary btn-sm" (click)="openPreview(job)">Invoice</button>
+            <button
+              type="button"
+              class="btn btn-primary btn-sm"
+              *ngIf="job.status !== 'outward'"
+              (click)="markOutward(job)">
+              Outward
+            </button>
+          </div>
+        </div>
+      </ng-container>
+      <ng-template #empty>
+        <div class="no-data">No repair entries yet.</div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<!-- Inward dialog -->
+<div class="dialog-root" *ngIf="showInwardDialog">
+  <div class="overlay" (click)="closeInward()"></div>
+  <div class="dialog" (click)="$event.stopPropagation()">
+    <div class="dlg-head">
+      <h2>New inward entry</h2>
+      <button type="button" class="ghost" (click)="closeInward()">✕</button>
+    </div>
+    <div class="dlg-body">
+      <div class="dlg-grid">
+        <label class="field">
+          Repair tariff (from Services · Repair category) *
+          <select [(ngModel)]="inwardForm.serviceId">
+            <option value="">Select…</option>
+            <option *ngFor="let s of repairServices" [value]="s.id">
+              {{ s.name }} · ₹{{ s.finalPrice ?? s.price }}
+            </option>
+          </select>
+        </label>
+        <label class="field">
+          Warranty *
+          <select [(ngModel)]="inwardForm.warrantyType">
+            <option value="warranty">Under warranty</option>
+            <option value="outside_warranty">Outside warranty</option>
+          </select>
+        </label>
+      </div>
+      <label class="field">
+        Issue / complaint *
+        <textarea rows="3" [(ngModel)]="inwardForm.issue" placeholder="Describe the fault…"></textarea>
+      </label>
+      <div class="dlg-grid three">
+        <label class="field">
+          Purchased on
+          <input type="date" [(ngModel)]="inwardForm.purchasedDate" />
+        </label>
+        <label class="field">
+          Model *
+          <input [(ngModel)]="inwardForm.model" placeholder="Model" />
+        </label>
+        <label class="field">
+          Serial *
+          <input [(ngModel)]="inwardForm.serial" placeholder="Serial number" />
+        </label>
+      </div>
+      <div class="dlg-grid">
+        <label class="field">
+          Expected delivery *
+          <input type="date" [(ngModel)]="inwardForm.expectedDeliveryDate" />
+        </label>
+        <label class="field">
+          Inward date *
+          <input type="date" [(ngModel)]="inwardForm.inwardDate" />
+        </label>
+      </div>
+      <div class="dlg-grid">
+        <label class="field">
+          Customer name
+          <input [(ngModel)]="inwardForm.customerName" />
+        </label>
+        <label class="field">
+          Customer mobile (10 digits)
+          <input [(ngModel)]="inwardForm.customerMobile" maxlength="10" placeholder="Optional" />
+        </label>
+      </div>
+      <label class="field">
+        Payment mode *
+        <select [(ngModel)]="inwardForm.paymentMode">
+          <option value="">Select…</option>
+          <option value="cash">Cash</option>
+          <option value="card">Card</option>
+          <option value="upi">UPI</option>
+        </select>
+      </label>
+      <div class="total-strip">
+        <span>Estimated charge</span>
+        <b>₹{{ lineTotal() | number:'1.0-2' }}</b>
+      </div>
+    </div>
+    <div class="dlg-foot">
+      <button type="button" class="btn btn-secondary" (click)="closeInward()" [disabled]="saving">Cancel</button>
+      <button type="button" class="btn btn-primary" (click)="submitInward()" [disabled]="saving">
+        {{ saving ? 'Saving…' : 'Generate inward invoice' }}
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- Invoice preview -->
+<div class="dialog-root invoice-preview-shell" *ngIf="showInvoicePreview && previewJob">
+  <div class="overlay" (click)="closePreview()"></div>
+  <div class="dialog print-frame" id="repair-invoice-print" (click)="$event.stopPropagation()">
+    <div class="dlg-head">
+      <h2>Repair inward invoice</h2>
+      <div class="dlg-head-actions">
+        <button type="button" class="btn btn-secondary" (click)="printFormattedInvoice(previewJob)">
+          Print invoice
+        </button>
+        <button type="button" class="btn btn-primary" (click)="saveRepairPdf(previewJob)">
+          Save as PDF
+        </button>
+        <button type="button" class="ghost" (click)="closePreview()">✕</button>
+      </div>
+    </div>
+    <div class="invoice-doc">
+      <div class="delivery-strip" *ngIf="previewJob">
+        <ng-container *ngIf="previewJob.status === 'outward'; else deliveryPending">
+          <span class="delivered">Delivered</span>
+          · Delivery date: <strong>{{ formatDate(previewJob.outwardDate || previewJob.repairDeliveredAt) }}</strong>
+        </ng-container>
+        <ng-template #deliveryPending>
+          <span class="pending">Not delivered yet</span>
+          · Expected: <strong>{{ formatDate(previewJob.expectedDeliveryDate) }}</strong>
+        </ng-template>
+      </div>
+      <div class="inv-top">
+        <div>
+          <h1>Repair — Inward</h1>
+          <p class="muted">Formal invoice with clinic header prints from the buttons above.</p>
+        </div>
+        <div class="inv-num">
+          <div><span class="lbl">Invoice</span> {{ previewJob.inwardInvoiceNumber }}</div>
+          <div><span class="lbl">Inward date</span> {{ formatDate(previewJob.inwardDate) }}</div>
+          <div><span class="lbl">Expected delivery</span> {{ formatDate(previewJob.expectedDeliveryDate) }}</div>
+        </div>
+      </div>
+      <div class="inv-grid">
+        <div><span class="lbl">Customer</span> {{ previewJob.customerName || '—' }}</div>
+        <div><span class="lbl">Mobile</span> {{ previewJob.customerMobile || '—' }}</div>
+        <div><span class="lbl">Warranty</span> {{ warrantyLabel(previewJob.warrantyType) }}</div>
+        <div><span class="lbl">Payment</span> {{ previewJob.paymentMode | uppercase }}</div>
+      </div>
+      <div class="inv-grid">
+        <div><span class="lbl">Model</span> {{ previewJob.model }}</div>
+        <div><span class="lbl">Serial</span> {{ previewJob.serial }}</div>
+        <div><span class="lbl">Purchased</span> {{ formatDate(previewJob.purchasedDate) }}</div>
+      </div>
+      <div class="inv-issue">
+        <span class="lbl">Issue reported</span>
+        <p>{{ previewJob.issue }}</p>
+      </div>
+      <table class="inv-table">
+        <thead>
+          <tr><th>Particulars</th><th>Qty</th><th>Amount</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>{{ previewJob.serviceName }}</td>
+            <td>1</td>
+            <td>₹{{ previewJob.total | number:'1.0-2' }}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="inv-total">Total payable: <strong>₹{{ previewJob.total | number:'1.0-2' }}</strong></div>
+    </div>
+  </div>
+</div>

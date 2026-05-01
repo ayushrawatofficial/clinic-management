@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Output, Input, OnInit, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { REPAIR_SERVICE_CATEGORY } from '../../../../shared/constants/repair';
 
 @Component({
   selector: 'app-add-service-dialog',
@@ -29,10 +30,15 @@ export class AddServiceDialogComponent implements OnInit {
   submitted = false;
 constructor(private cdr: ChangeDetectorRef) {}
 
+  readonly categories = [
+    'General',
+    REPAIR_SERVICE_CATEGORY
+  ] as const;
+
   ngOnInit() {
     if (this.data) {
       this.name = this.data.name;
-      this.category = this.data.category;
+      this.category = this.data.category || '';
       this.description = this.data.description;
       this.price = this.data.price;
       this.discountType = this.data.discountType;
@@ -59,8 +65,8 @@ constructor(private cdr: ChangeDetectorRef) {}
 
   this.onSave.emit({
     name: this.name.trim(),
-    category: this.category,
-    description: this.description,
+    category: (this.category || '').trim(),
+    description: (this.description || '').trim(),
     price: this.price,
     discountType: this.discountType,
     discountValue: this.discountValue,

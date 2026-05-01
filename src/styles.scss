@@ -3,6 +3,13 @@ body {
   font-family: Arial, sans-serif;
 }
 
+/* Prevent `width: 100%` + padding causing horizontal overflow */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
 :root {
   --brand-600: #2563eb;
   --brand-700: #1d4ed8;
@@ -169,20 +176,20 @@ body {
   height: 100vh;
 }
 
-.sidebar {
+.layout .sidebar {
   width: 220px;
   background: #1e293b;
   color: white;
   padding: 20px;
 }
 
-.main {
+.layout .main {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.header {
+.layout .header {
   height: 60px;
   background: #f8fafc;
   display: flex;
@@ -191,11 +198,12 @@ body {
   border-bottom: 1px solid #ddd;
 }
 
-.content {
+/* Legacy `.layout` demo only — main app uses app-main-layout + .content-shell */
+.layout .content {
   padding: 20px;
   overflow: auto;
 }
 
-router-outlet {
+.layout router-outlet {
   display: none;
 }

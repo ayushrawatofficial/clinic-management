@@ -1,7 +1,16 @@
 <div class="page">
   <div class="page-top">
     <div class="page-chip">Patient Management / List</div>
-    <button class="btn btn-primary" (click)="openDialog(); $event.stopPropagation()">Add Patient</button>
+    <div class="top-actions">
+      <button
+        type="button"
+        class="btn btn-secondary"
+        title="Download CSV"
+        (click)="downloadCsv(); $event.stopPropagation()">
+        ⬇ Export
+      </button>
+      <button class="btn btn-primary" (click)="openDialog(); $event.stopPropagation()">Add Patient</button>
+    </div>
   </div>
 
   <!-- HEADER -->
@@ -21,13 +30,15 @@
         <div class="kpi-value">{{ patientsToday }}</div>
       </div>
     </div>
-
-    <span></span>
   </div>
 
   <!-- SEARCH -->
   <div class="search-bar">
-    <input [(ngModel)]="search" (input)="applyFilter()" placeholder="Search..." />
+    <input
+      [(ngModel)]="search"
+      (input)="applyFilter()"
+      placeholder="Search ID, name, mobile, age..."
+    />
   </div>
 
   <!-- TABLE -->
