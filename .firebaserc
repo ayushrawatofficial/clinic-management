@@ -1,5 +1,10 @@
 {
   "projects": {
-    "default": "speech-and-hearfing-clinic-management"
-  }
+    "default": "speech-and-hearfing-clinic-management",
+    "speech-and-hearing-management-prod": "clinic-management-67289",
+    "dev": "clinic-management-67289",
+    "prod": "speech-and-hearing-management"
+  },
+  "targets": {},
+  "etags": {}
 }
